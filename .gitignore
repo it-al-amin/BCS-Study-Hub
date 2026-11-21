@@ -1,5 +1,8 @@
 # Dependencies
 web/node_modules/
+**/bin/
+**/obj/
+**/TestResults/
 
 # Build output
 web/dist/
@@ -9,6 +12,7 @@ dist/
 .env
 .env.*
 *.local
+*.user
 
 # Logs
 *.log

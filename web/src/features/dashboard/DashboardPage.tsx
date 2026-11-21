@@ -1,5 +1,5 @@
 import { ArrowRight, Clock3, Flame, Target } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { useNavigate, NavLink } from 'react-router-dom'
 import { temporaryDashboard } from '../../mock/dashboard'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
@@ -7,9 +7,11 @@ import { Card, CardHeader } from '../../components/ui/Card'
 import { PageHeader } from '../../components/ui/PageHeader'
 
 export function DashboardPage() {
+  const navigate = useNavigate()
+
   return (
     <>
-      <PageHeader title="Good evening, Candidate" description="Here is your preparation snapshot for today." action={<Button><NavLink to="/planner">Open study planner</NavLink></Button>} />
+      <PageHeader title="Good evening, Candidate" description="Temporary preview metrics; no study history is connected." action={<Button onClick={() => navigate('/planner')}>Open study planner</Button>} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: 'Overall progress', value: `${temporaryDashboard.overallProgress}%`, icon: Target, detail: 'Across all stages' },
@@ -21,11 +23,11 @@ export function DashboardPage() {
         ))}
       </div>
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(300px,.7fr)]">
-        <Card><CardHeader title="Subject progress" subtitle="Live from study activity" action={<NavLink to="/progress" className="text-sm font-medium text-emerald-700">View report</NavLink>} /><div className="space-y-5 p-5">{temporaryDashboard.subjects.map((subject) => <div key={subject.name}><div className="mb-2 flex justify-between text-sm"><span className="font-medium">{subject.name}</span><span className="text-slate-500">{subject.progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div className={`h-full rounded-full ${subject.color}`} style={{ width: `${subject.progress}%` }} /></div></div>)}</div></Card>
-        <Card><CardHeader title="Upcoming tasks" subtitle="Your next study blocks" /><div className="divide-y divide-slate-100 px-5 dark:divide-slate-800">{temporaryDashboard.tasks.map((task) => <div key={task.title} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-medium">{task.title}</p><p className="mt-1 text-xs text-slate-500">{task.meta}</p></div><Badge tone={task.tone}>{task.tone === 'warning' ? 'Due' : 'Planned'}</Badge></div>)}</div></Card>
+        <Card><CardHeader title="Subject progress" subtitle="Temporary example data" action={<NavLink to="/progress" className="text-sm font-medium text-emerald-700">View report</NavLink>} /><div className="space-y-5 p-5">{temporaryDashboard.subjects.map((subject) => <div key={subject.name}><div className="mb-2 flex justify-between text-sm"><span className="font-medium">{subject.name}</span><span className="text-slate-500">{subject.progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div className={`h-full rounded-full ${subject.color}`} style={{ width: `${subject.progress}%` }} /></div></div>)}</div></Card>
+        <Card><CardHeader title="Upcoming tasks" subtitle="Temporary example schedule" /><div className="divide-y divide-slate-100 px-5 dark:divide-slate-800">{temporaryDashboard.tasks.map((task) => <div key={task.title} className="flex items-center justify-between gap-3 py-4"><div><p className="text-sm font-medium">{task.title}</p><p className="mt-1 text-xs text-slate-500">{task.meta}</p></div><Badge tone="neutral">{task.tone === 'warning' ? 'Example due' : 'Example planned'}</Badge></div>)}</div></Card>
       </div>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card><CardHeader title="Revision queue" subtitle="Topics most ready for review" action={<NavLink to="/revision" className="text-sm text-emerald-700">Open queue</NavLink>} /><div className="divide-y divide-slate-100 px-5 dark:divide-slate-800">{temporaryDashboard.revisions.map((item) => <div key={item.title} className="flex items-center justify-between py-4"><div><p className="text-sm font-medium">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.type}</p></div><span className="flex items-center gap-1 text-sm text-slate-500">{item.count}<ArrowRight className="h-4 w-4" /></span></div>)}</div></Card>
+        <Card><CardHeader title="Revision queue" subtitle="Temporary preview data" action={<NavLink to="/revision" className="text-sm text-emerald-700">Open queue</NavLink>} /><div className="divide-y divide-slate-100 px-5 dark:divide-slate-800">{temporaryDashboard.revisions.map((item) => <div key={item.title} className="flex items-center justify-between py-4"><div><p className="text-sm font-medium">{item.title}</p><p className="mt-1 text-xs text-slate-500">{item.type}</p></div><span className="flex items-center gap-1 text-sm text-slate-500">{item.count}<ArrowRight className="h-4 w-4" /></span></div>)}</div></Card>
         <Card><CardHeader title="Recent activity" subtitle="Temporary UI preview" /><div className="grid min-h-48 place-items-center p-5 text-center"><div><p className="text-sm font-medium">No backend activity connected</p><p className="mt-1 text-sm text-slate-500">Real attempts and study sessions will appear here.</p></div></div></Card>
       </div>
     </>

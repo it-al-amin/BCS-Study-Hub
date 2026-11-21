@@ -6,7 +6,7 @@ Every later module depends on the base platform. Build a vertical slice rather t
 
 ## Phase 1 - Architecture and planning
 
-Status: current
+Status: complete
 
 Deliverables:
 
@@ -22,51 +22,60 @@ Exit criteria:
 - initial vertical slice is selected
 - setup decisions are resolved
 
-## Phase 2 - Development foundation
+## Phase 2 - React frontend foundation
 
 Dependencies: none
 
 Build:
 
-- solution/workspace scaffold
-- shared logging, configuration, health, CORS, validation, and Problem Details
-- EF Core/MySQL baseline
-- Identity or equivalent authentication
-- role/permission/audit baseline
-- frontend shell, route map, API client, authentication guard
-- Docker Compose if approved
+- React, TypeScript, Vite, Tailwind, and React Router
+- responsive application shell and reusable UI components
+- initial route map and typed API client
+- accessible loading, empty, error, and responsive navigation states
 
-Do not build full syllabus or study modules here.
+The frontend foundation and requested initial routes are implemented. The syllabus UI is now connected to the Phase 4 APIs.
 
-## Phase 3 - Versioned syllabus foundation
+## Phase 3 - ASP.NET Core backend and MySQL foundation
 
 Dependencies: Phase 2
 
 Build:
 
-- `ExamStage`, `SyllabusVersion`, `Subject`, `Paper`, `Topic`, `Subtopic`
-- admin CRUD
-- publish/archive transitions
-- syllabus tree read endpoint
-- minimal React syllabus/admin pages
+- Clean Architecture solution and project references
+- EF Core/MySQL, Identity, JWT authentication, roles, permissions, and audit baseline
+- validation, Problem Details, logging, Swagger, health checks, and backend tests
 
-This phase proves hierarchy, versioning, permissions, and audit behavior.
+The backend foundation is implemented. No question-bank, library, or other future-module tables are included.
 
-## Phase 4 - Study content and personal notes
+## Phase 4 - Complete dynamic BCS syllabus management
 
-Dependencies: Phase 3
+Dependencies: Phases 2 and 3
+
+Build:
+
+- versioned Preliminary, Written (General and Technical/Professional tracks), and Viva syllabus outlines
+- subject, optional paper, topic/subtopic, source-reference, and user-owned progress schema
+- public published tree/search and authenticated progress APIs
+- permission-protected draft management and publish/archive lifecycle
+- responsive learner explorer and syllabus admin UI
+- official-source register; never infer or present unverified content as official
+
+The verified outline/API/UI vertical slice is implemented. Detailed topic text remains unverified and is explicitly marked as such.
+
+## Phase 5 - Study content and personal notes
+
+Dependencies: Phase 4
 
 Build:
 
 - tags/categories
 - study notes
 - personal notes
-- source attribution
 - content revision/publish workflow
 
-## Phase 5 - Digital library
+## Phase 6 - Digital library
 
-Dependencies: Phase 3 and storage provider decision
+Dependencies: Phase 4 and storage provider decision
 
 Build:
 
@@ -80,9 +89,9 @@ Build:
 - resource personal notes
 - topic associations
 
-## Phase 6 - MCQ foundation
+## Phase 7 - MCQ foundation
 
-Dependencies: Phases 3 and 4
+Dependencies: Phases 4 and 5
 
 Build:
 
@@ -94,9 +103,9 @@ Build:
 - attempt history
 - weak-topic calculation
 
-## Phase 7 - Mock exams
+## Phase 8 - Mock exams
 
-Dependencies: Phase 6
+Dependencies: Phase 7
 
 Build:
 
@@ -108,9 +117,9 @@ Build:
 - review
 - score trends
 
-## Phase 8 - Written and viva
+## Phase 9 - Written and viva
 
-Dependencies: Phases 3 and 4
+Dependencies: Phases 4 and 5
 
 Build written:
 
@@ -128,9 +137,9 @@ Build viva:
 - personal answer notes
 - ratings and follow-up
 
-## Phase 9 - Planner and progress
+## Phase 10 - Planner and progress
 
-Dependencies: Phases 3, 4, and 6
+Dependencies: Phases 4, 5, and 7
 
 Build:
 
@@ -142,9 +151,9 @@ Build:
 - real database dashboard
 - recent activity
 
-## Phase 10 - Current affairs and government resources
+## Phase 11 - Current affairs and government resources
 
-Dependencies: Phases 3 and 5
+Dependencies: Phases 4 and 6
 
 Build:
 
@@ -155,7 +164,7 @@ Build:
 - government resource directory
 - official external-link management
 
-## Phase 11 - Hardening
+## Phase 12 - Hardening
 
 Dependencies: all selected modules
 
@@ -205,29 +214,29 @@ Admin ------------> every editable entity
 - [x] Define study/practice module boundaries
 - [x] Define testing strategy
 - [x] Define implementation phases
-- [ ] Obtain approval for initial foundation stack and versions
+- [x] Obtain approval for initial foundation stack and versions
 
 ### Foundation
 
-- [ ] Confirm SDK/package versions
-- [ ] Create solution and React workspace
-- [ ] Add EF Core/MySQL
-- [ ] Add auth and permissions
-- [ ] Add audit
-- [ ] Add frontend shell
-- [ ] Add health/config/OpenAPI
-- [ ] Add test projects
-- [ ] Run baseline build/tests
+- [x] Confirm SDK/package versions (.NET 10 / EF Core 10)
+- [x] Create solution and React workspace
+- [x] Add EF Core/MySQL
+- [x] Add auth and permissions
+- [x] Add audit
+- [x] Add frontend shell
+- [x] Add health/config/OpenAPI
+- [x] Add test projects
+- [x] Run baseline build/tests
 
 ### Syllabus
 
-- [ ] Add entities and migrations
-- [ ] Add seed permissions and test administrator only
-- [ ] Add CRUD/use cases
-- [ ] Add publish/archive
-- [ ] Add tree endpoint
-- [ ] Add admin UI
-- [ ] Add API and UI tests
+- [x] Add entities and migrations
+- [x] Add seed permissions and stage/source-verified outline data
+- [x] Add CRUD/use cases
+- [x] Add publish/archive
+- [x] Add tree/search/progress endpoints
+- [x] Add admin UI
+- [x] Add request validation and build/tests
 
 ### Future modules
 

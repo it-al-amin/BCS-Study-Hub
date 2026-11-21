@@ -1,19 +1,14 @@
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Card, CardHeader } from '../../components/ui/Card'
 import { Table } from '../../components/ui/Table'
-
-const progress = [
-  ['Preliminary', 42, '12h 30m'],
-  ['Written', 18, '3h 10m'],
-  ['Viva', 8, '45m'],
-]
+import { temporaryProgress } from '../../mock/progress'
 
 export function ProgressPage() {
   return (
     <>
-      <PageHeader title="Study Progress" description="Overall stage and subject performance reports." />
-      <div className="grid gap-6 md:grid-cols-3">{progress.map(([stage, value, time]) => <Card key={String(stage)} className="p-5"><p className="text-sm text-slate-500">{stage}</p><p className="mt-2 text-2xl font-semibold">{value}%</p><div className="mt-4 h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${value}%` }} /></div><p className="mt-3 text-xs text-slate-500">{time} studied</p></Card>)}</div>
-      <Card className="mt-6"><CardHeader title="Subject summary" subtitle="Temporary presentation data" /><Table headers={['Subject', 'Completed topics', 'Avg. quiz score']} >{[['Bangladesh Affairs','18 / 32','72%'],['English','12 / 28','68%'],['Mathematics','9 / 26','61%']].map((row) => <tr key={row[0]}>{row.map((cell) => <td key={cell} className="px-5 py-4">{cell}</td>)}</tr>)}</Table></Card>
+      <PageHeader title="Study Progress" description="Temporary example metrics; no study history is connected." />
+      <div className="grid gap-6 md:grid-cols-3">{temporaryProgress.stages.map((stage) => <Card key={stage.name} className="p-5"><p className="text-sm text-slate-500">{stage.name}</p><p className="mt-2 text-2xl font-semibold">{stage.progress}%</p><div className="mt-4 h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${stage.progress}%` }} /></div><p className="mt-3 text-xs text-slate-500">Example: {stage.studyTime}</p></Card>)}</div>
+      <Card className="mt-6"><CardHeader title="Example subject summary" subtitle="Temporary preview data" /><Table headers={['Subject', 'Completed topics', 'Avg. quiz score']} >{temporaryProgress.subjects.map((subject) => <tr key={subject.name}><td className="px-5 py-4">{subject.name}</td><td className="px-5 py-4">{subject.completedTopics}</td><td className="px-5 py-4">{subject.averageQuizScore}</td></tr>)}</Table></Card>
     </>
   )
 }

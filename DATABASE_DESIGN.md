@@ -4,6 +4,14 @@
 
 MySQL is the system of record for identities, syllabus versions, content metadata, relationships, attempts, progress, and audit records. Binary files are stored outside MySQL.
 
+## Implemented schema
+
+`InitialIdentityAndAudit` creates ASP.NET Core Identity tables, `Permissions`, `RolePermissions`, and `AuditLogs`. `AddVersionedSyllabus` adds the versioned examination/syllabus hierarchy, official source references, and user-owned topic progress. Users and roles use GUID keys. Permissions are assigned to database-managed roles; the seeded baseline is Candidate, ContentManager, and Administrator.
+
+Question-bank, library, planner, written-question, and viva-question tables remain out of scope.
+
+The initial audit records cover successful registration and login and exclude credentials and token values. Additional audited mutations will be added with their respective modules.
+
 ## Conventions
 
 - Use `long`/`Guid` values for public identities; choose UUID or BIGINT per entity during implementation
@@ -74,62 +82,84 @@ ExamStage
   - Id
   - Code
   - Name
+  - LocalizedName
   - SortOrder
-  - Status
+  - IsActive
 
 SyllabusVersion
   - Id
   - ExamStageId
-  - Title
-  - EffectiveFrom
+  - VersionLabel
+  - TrackCode (Common, General, TechnicalProfessional)
+  - Summary
+  - Coverage (OutlineOnly, FullTopics)
+  - Status (Draft, Published, Archived)
+  - EffectiveFrom nullable
   - EffectiveTo nullable
-  - Status
-  - SourceSummary
-  - PublishedAt
+  - PublishedAt nullable
+  - CreatedAt
+  - UpdatedAt
 
 Subject
   - Id
   - Code
   - Name
   - Description
-  - Status
+  - IsActive
 
 SyllabusSubject
   - Id
   - SyllabusVersionId
   - SubjectId
   - SortOrder
-  - MarksInfoJson nullable
+  - Marks nullable
+  - IsRequired
 
 Paper
   - Id
   - SyllabusSubjectId
-  - Name
   - Code
+  - Name
   - SortOrder
-  - MarksInfoJson nullable
+  - MaxMarks nullable
 
-Topic
+SyllabusItem
   - Id
-  - SyllabusVersionId
-  - SubjectId
+  - SyllabusSubjectId
   - PaperId nullable
-  - ParentTopicId nullable
+  - ParentId nullable
+  - Kind (Topic, Subtopic)
   - Title
-  - Description
+  - Description nullable
   - SortOrder
-  - Status
+  - VerificationStatus (Unverified, Verified, NeedsReview)
 
-Subtopic
+SyllabusSourceReference
   - Id
-  - TopicId
   - Title
-  - Description
-  - SortOrder
-  - Status
+  - Publisher
+  - Url
+  - SourceType
+  - PublishedOn nullable
+  - LastVerifiedOn nullable
+  - VerificationStatus (Unverified, Verified, Superseded)
+  - Notes nullable
+
+SyllabusVersionSource (SyllabusVersionId, SourceReferenceId)
+SyllabusItemSource (SyllabusItemId, SourceReferenceId)
+
+TopicProgress
+  - Id
+  - UserId
+  - SyllabusItemId
+  - IsCompleted
+  - CompletedAt nullable
+  - UpdatedAt
 ```
 
-To keep the hierarchy flexible, a topic may contain child topics. Subtopics are separately modeled for an explicit UI leaf and for direct progress/resource associations. `SyllabusSubject` resolves a subject to a version; `Subject` may also be reused across versions.
+`SyllabusItem` is the single persisted hierarchy for topic and subtopic nodes; the `Kind` discriminator and application validation prevent deeper or cross-subject parent links. A subtopic must have a topic parent in the same version/subject mapping and paper. This avoids duplicate topic/subtopic storage while retaining separate topic and subtopic API routes. `SyllabusSubject` resolves a shared subject catalog record to a specific version and stores version-specific marks/order.
+
+Versions are immutable after publication. A verified version source is required to publish; a `FullTopics` version additionally requires every topic/subtopic to be marked verified and linked to a verified source. `OutlineOnly` versions explicitly state their coverage limits. Topic progress has a unique `(UserId, SyllabusItemId)` key and is only accessible by the owning user.
 
 ### Content metadata
 
@@ -411,9 +441,11 @@ Publication
 - `ExamStage 1-* SyllabusVersion`
 - `SyllabusVersion *-* Subject` through `SyllabusSubject`
 - `SyllabusSubject 1-* Paper`
-- `SyllabusVersion 1-* Topic`
-- `Topic 1-* Subtopic`
-- `Topic 1-* Topic` for child topics, no cycles in application validation
+- `SyllabusSubject 1-* SyllabusItem`
+- `SyllabusItem 1-* SyllabusItem` for the one-level Topic-to-Subtopic hierarchy, validated by the application
+- `SyllabusVersion *-* SyllabusSourceReference` through `SyllabusVersionSource`
+- `SyllabusItem *-* SyllabusSourceReference` through `SyllabusItemSource`
+- `User 1-* TopicProgress`; each progress row targets one syllabus item
 - `Question *-* Topic/Subtopic` through versioned links
 - `ExamTemplate 1-* ExamSection 1-* ExamTemplateQuestion`
 - `ExamAttempt 1-* ExamAttemptAnswer`
@@ -425,7 +457,9 @@ Publication
 
 - Unique normalized user email and role/permission codes
 - Unique refresh-token hash
-- Unique syllabus subject/paper/topic sort keys
+- Unique stage/version/track labels, subject codes, and paper codes within a syllabus subject
+- Unique version-to-subject and source/item junction pairs
+- Topic order by syllabus subject, kind, and sort order; progress by user and item
 - Unique junction-table pairs
 - Question status/type/difficulty
 - Question-syllabus topic/subtopic
@@ -439,13 +473,13 @@ Publication
 
 ## Migration strategy
 
-Migrations are application phase deliverables, not Phase 1 deliverables. Before execution:
+Migrations are application phase deliverables. The Phase 4 `AddVersionedSyllabus` migration has been generated and reviewed; it must be applied to the configured MySQL database before the API can start. Before execution:
 
 1. Update entity configurations and DbContext.
 2. Generate an EF Core migration.
 3. Review it for MySQL-specific types and destructive operations.
-4. Run against a disposable local database.
+4. Run against a disposable local database when available.
 5. Run integration tests.
-6. Run migration against the user's explicitly approved database.
+6. Apply only to the explicitly configured database.
 
 The exact migration command will use the established startup/Infrastructure project names.

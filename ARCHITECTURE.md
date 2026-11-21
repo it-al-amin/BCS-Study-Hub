@@ -58,14 +58,15 @@ Roles and permissions are database-configurable. The UI and API must authorize a
 ### Examination model
 
 - `ExamStage`: preliminary, written, viva
-- `SyllabusVersion`: stage, title, effective period, status, source references
+- `SyllabusVersion`: stage, version label, candidate track, effective period, draft/published/archived status, coverage scope, source references
 - `Subject`: code, name, description, status
 - `Paper`: subject, title, sequence, optional pass/marks metadata
-- `Topic`: subject/paper, title, description, sequence
-- `Subtopic`: topic, title, description, sequence
-- `TopicLink`: flexible many-to-many association used for related topics
+- `SyllabusSubject`: version-to-subject mapping, order, marks, required flag
+- `SyllabusItem`: one versioned hierarchy table with a `Topic`/`Subtopic` discriminator, optional paper, parent topic, order, verification status
+- `SyllabusSourceReference`: official source metadata and verification status; linked to versions and individual items
+- `TopicProgress`: user-owned completion state referencing a syllabus item
 
-The hierarchy is `ExamStage -> Subject -> Paper (optional) -> Topic -> Subtopic`, but a topic belongs to a syllabus version and must not become a global duplicate of the same concept. Revisions of syllabus content receive separate versions and are not silently overwritten.
+The hierarchy is `ExamStage -> SyllabusVersion -> SyllabusSubject -> Paper (optional) -> Topic -> Subtopic`. `SyllabusItem` stores topic and subtopic nodes once, avoiding duplicated topic/subtopic tables. Revisions of syllabus content receive separate versions and are not silently overwritten. A written version is track-specific (`General` or `TechnicalProfessional`); common stages use `Common`.
 
 ### Syllabus and publication metadata
 
@@ -145,9 +146,11 @@ Large files remain outside MySQL. Metadata and checksums are relational records.
 
 ## 4. Relationship rules
 
-- A subject can belong to one or more syllabus versions.
+- A subject can belong to one or more syllabus versions through `SyllabusSubject`.
 - A paper belongs to a subject but is optional.
-- Topics and subtopics belong to a syllabus version through explicit version entities.
+- Topics and subtopics belong to a syllabus version through `SyllabusSubject`; subtopics have one topic parent in the same mapping and paper.
+- Published versions are immutable. Draft-to-published publication requires a verified source. `FullTopics` versions also require every topic and subtopic to have a verified item-level source.
+- User progress is unique per user and syllabus item and is never returned across user boundaries.
 - Questions, notes, resources, and current-affair entries associate with syllabus nodes through many-to-many link tables.
 - A resource can belong to subjects, topics, subtopics, books, collections, or current-affair entries.
 - Users own personal notes, progress, attempts, answers, goals, bookmarks, and mistake entries.
@@ -304,29 +307,36 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 
 ## 11. Development phases
 
-### Phase 1 - Foundation
+### Phase 1 - Architecture and planning
 
-- Confirm project structure
-- Configure solution and frontend workspace
-- Add database, OpenAPI, CORS, validation, exception handling, logging
-- Implement identity, roles, permissions, and audit baseline
+- Approve architecture, initial technology stack, and implementation roadmap
 
-### Phase 2 - Syllabus and content
+### Phase 2 - React frontend foundation
 
-- Migrations for examination hierarchy
-- Syllabus-version CRUD and publication
-- Subject/paper/topic/subtopic management
-- Tags/categories and basic admin UI
+- Responsive React/TypeScript application shell, reusable UI, and initial routes
 
-### Phase 3 - Study content and library
+### Phase 3 - ASP.NET Core backend and MySQL foundation
+
+- Clean Architecture, EF Core/MySQL, Identity/JWT, permissions, audit, validation, and health
+
+### Phase 4 - Dynamic BCS syllabus management
+
+- Versioned stage/subject/paper/topic hierarchy, sources, publication, and user progress
+- Responsive learner explorer and permission-protected administration
+- Import only content verified against official sources
+
+### Phase 5 - Study content and personal notes
 
 - Notes and personal notes
+- Tags/categories and content revision workflow
+
+### Phase 6 - Digital library
+
 - Book/resource metadata
-- Storage abstraction
-- Secure upload/download
+- Storage abstraction and secure upload/download
 - Collections and topic associations
 
-### Phase 4 - MCQ practice
+### Phase 7 - MCQ practice
 
 - Question and option CRUD
 - Topic associations
@@ -334,7 +344,7 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - Attempt history
 - Explanations and weak-topic calculations
 
-### Phase 5 - Mock exams
+### Phase 8 - Mock exams
 
 - Exam templates
 - Sections and question selection
@@ -342,14 +352,14 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - Randomization
 - Review and score analytics
 
-### Phase 6 - Written and viva
+### Phase 9 - Written and viva
 
 - Written questions and answers
 - Personal evaluation and model answers
 - Viva questions and mock sessions
 - Profile and cadre research
 
-### Phase 7 - Planner, revision, and dashboard
+### Phase 10 - Planner, revision, and dashboard
 
 - Daily/weekly goals
 - Study sessions
@@ -357,14 +367,14 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - Progress dashboard
 - Real performance trends
 
-### Phase 8 - Current affairs and government resources
+### Phase 11 - Current affairs and government resources
 
 - Curated content workflow
 - Official-source metadata
 - Date/category/tag filtering
 - Resource and topic associations
 
-### Phase 9 - Hardening and delivery
+### Phase 12 - Hardening and delivery
 
 - Docker Compose
 - CI/CD
@@ -386,25 +396,23 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 
 ## 13. Initial implementation checklist
 
-- [ ] Create solution and frontend workspace
-- [ ] Set up configuration and secret separation
-- [ ] Establish database and EF Core conventions
-- [ ] Add base migrations for identity, roles, permissions, and audit
-- [ ] Add global validation and problem-details middleware
-- [ ] Implement authentication and authorization
-- [ ] Implement first syllabus hierarchy vertical slice
-- [ ] Create one admin CRUD workflow
-- [ ] Add frontend shell, routing, auth guard, and theme
-- [ ] Build and test the first endpoint/UI flow
+- [x] Create solution and frontend workspace
+- [x] Set up configuration and secret separation
+- [x] Establish database and EF Core conventions
+- [x] Add base migrations for identity, roles, permissions, and audit
+- [x] Add global validation and problem-details middleware
+- [x] Implement authentication and authorization
+- [x] Implement versioned syllabus hierarchy, source references, and user-owned topic progress
+- [x] Add permission-protected draft/publish administration and published tree/search APIs
+- [x] Add frontend API integration, sign-in for progress/admin, and responsive syllabus explorer
+- [x] Build and test the first syllabus endpoint/UI flow
 - [ ] Add storage abstraction and one provider
 - [ ] Expand content modules in approved phases
 
+The Phase 4 syllabus implementation publishes only BPSC-verified stage/subject/marks outlines. Detailed topic lists remain clearly marked as not yet verified; see [SYLLABUS_SOURCES.md](SYLLABUS_SOURCES.md).
+
 ## 14. Decisions requiring later approval
 
-- Exact initial .NET and package versions
-- Identity implementation versus custom authentication
-- Local storage versus cloud object storage in initial deployment
-- Monolithic React application state approach
-- Public registration versus invite-only initial access
-- Exact MVC/minimal-API convention
+- Production storage provider and deployment configuration
+- Registration policy for production
 - Search provider after core CRUD needs are known

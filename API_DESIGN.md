@@ -21,7 +21,7 @@ Successful collection response:
 ```json
 {
   "items": [],
-  "page": 1,
+  "pageNumber": 1,
   "pageSize": 20,
   "totalCount": 0,
   "totalPages": 0
@@ -50,7 +50,7 @@ Never return database entities or raw provider exceptions.
 
 ## Common query parameters
 
-- `page`
+- `pageNumber`
 - `pageSize` with configured maximum
 - `search`
 - `sort`
@@ -73,36 +73,64 @@ Sort fields are allowlisted per endpoint. Unknown sort/filter fields produce val
 ```text
 POST /api/v1/auth/register
 POST /api/v1/auth/login
-POST /api/v1/auth/refresh
-POST /api/v1/auth/logout
-POST /api/v1/auth/forgot-password
-POST /api/v1/auth/reset-password
 GET  /api/v1/auth/me
-PUT  /api/v1/auth/change-password
 ```
 
-Registration may be invite-only until explicitly approved.
+The foundation exposes registration, login, and the authenticated current-user endpoint. Registration creates a Candidate account and returns a short-lived access JWT. Passwords must be at least 12 characters and include an uppercase letter, a lowercase letter, a digit, and a non-alphanumeric character. Refresh, logout, password-reset, and change-password flows are not implemented yet.
 
 ## Syllabus endpoints
 
+Public reads expose published versions only. Version and item reads support bounded pagination; search and version lists use allowlisted sort fields. Draft and archived versions are only available through the permission-protected admin routes.
+
 ```text
-GET    /api/v1/exam-stages
-GET    /api/v1/syllabus-versions
-POST   /api/v1/syllabus-versions
-GET    /api/v1/syllabus-versions/{id}
-PUT    /api/v1/syllabus-versions/{id}
-POST   /api/v1/syllabus-versions/{id}/publish
-POST   /api/v1/syllabus-versions/{id}/archive
-GET    /api/v1/syllabus-versions/{id}/tree
-POST   /api/v1/syllabus-versions/{id}/subjects
-POST   /api/v1/subjects/{id}/papers
-POST   /api/v1/papers/{id}/topics
-POST   /api/v1/topics/{id}/subtopics
-PUT    /api/v1/topics/{id}
-DELETE /api/v1/topics/{id}
+GET    /api/v1/syllabus/stages
+GET    /api/v1/syllabus/versions?stageCode=&trackCode=&pageNumber=&pageSize=&sortBy=
+GET    /api/v1/syllabus/versions/{versionId}/tree
+GET    /api/v1/syllabus/versions/{versionId}/subjects
+GET    /api/v1/syllabus/papers?syllabusSubjectId=
+GET    /api/v1/syllabus/items?versionId=&subjectId=&parentId=&kind=
+GET    /api/v1/syllabus/topics?versionId=&subjectId=
+GET    /api/v1/syllabus/subtopics?versionId=&parentId=
+GET    /api/v1/syllabus/search?q=&stageCode=&versionId=&subjectId=&kind=&pageNumber=&pageSize=&sortBy=
+GET    /api/v1/syllabus/versions/{versionId}/sources
+GET    /api/v1/syllabus/items/{itemId}/sources
+
+GET    /api/v1/me/topic-progress?versionId=
+PUT    /api/v1/me/topic-progress/{syllabusItemId}
 ```
 
-Archiving is the default lifecycle operation. A hard delete is only for unpublished/draft records with no dependents.
+`PUT /api/v1/me/topic-progress/{syllabusItemId}` accepts `{ "isCompleted": true }`; the user ID always comes from the authenticated JWT, never the request body. Public tree reads optionally include only the current authenticated user's completion flags.
+
+Admin operations require the `syllabus.manage` permission:
+
+```text
+GET    /api/v1/admin/syllabus/stages
+PUT    /api/v1/admin/syllabus/stages/{stageId}
+GET    /api/v1/admin/syllabus/versions?stageCode=&trackCode=&status=&pageNumber=&pageSize=&sortBy=
+POST   /api/v1/admin/syllabus/stages/{stageId}/versions
+GET    /api/v1/admin/syllabus/versions/{versionId}/tree
+PUT    /api/v1/admin/syllabus/versions/{versionId}
+POST   /api/v1/admin/syllabus/versions/{versionId}/publish
+POST   /api/v1/admin/syllabus/versions/{versionId}/archive
+GET/POST /api/v1/admin/syllabus/subjects
+PUT    /api/v1/admin/syllabus/subjects/{subjectId}
+POST   /api/v1/admin/syllabus/versions/{versionId}/subjects
+PUT    /api/v1/admin/syllabus/syllabus-subjects/{mappingId}
+GET    /api/v1/admin/syllabus/papers?syllabusSubjectId=
+POST   /api/v1/admin/syllabus/syllabus-subjects/{mappingId}/papers
+PUT/DELETE /api/v1/admin/syllabus/papers/{paperId}
+GET    /api/v1/admin/syllabus/items?versionId=&subjectId=&parentId=&kind=
+POST   /api/v1/admin/syllabus/topics
+POST   /api/v1/admin/syllabus/subtopics
+PUT/DELETE /api/v1/admin/syllabus/items/{itemId}
+GET    /api/v1/admin/syllabus/versions/{versionId}/sources
+POST   /api/v1/admin/syllabus/sources
+GET/PUT /api/v1/admin/syllabus/sources/{sourceId}
+PUT/DELETE /api/v1/admin/syllabus/versions/{versionId}/sources/{sourceId}
+PUT/DELETE /api/v1/admin/syllabus/items/{itemId}/sources/{sourceId}
+```
+
+Draft content is editable. Publishing requires at least one source marked verified. A `FullTopics` version additionally requires every topic/subtopic to be verified and linked to a verified source. Published versions are immutable and can only be archived; corrections use a new draft version. Admin mutations are written to `AuditLogs` without logging source content or secrets.
 
 ## Study content endpoints
 
@@ -215,6 +243,7 @@ GET    /api/v1/government-resources
 ## Admin and security endpoints
 
 ```text
+GET    /api/v1/admin/access
 GET    /api/v1/admin/users
 PUT    /api/v1/admin/users/{id}/status
 PUT    /api/v1/admin/users/{id}/roles
@@ -222,6 +251,8 @@ GET    /api/v1/admin/roles
 PUT    /api/v1/admin/roles/{id}/permissions
 GET    /api/v1/admin/audit-logs
 ```
+
+Only `/api/v1/admin/access` is implemented as a permission-policy smoke endpoint; the remaining endpoints are planned.
 
 ## Security conventions
 

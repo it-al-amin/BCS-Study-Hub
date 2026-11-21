@@ -2,79 +2,46 @@
 
 ## Last updated
 
-2026-11-19
+2026-11-21
 
 ## Current phase
 
-Phase 2 - React frontend foundation
+Phase 4 - Dynamic BCS Syllabus Management. The versioned syllabus foundation, public APIs, admin workflow, learner explorer, and user-owned completion tracking are implemented.
 
 ## Completed
 
-- [x] Project vision captured
-- [x] Technology stack identified
-- [x] Core module scope identified
-- [x] Clean Architecture boundary proposed
-- [x] Database entity families proposed
-- [x] Frontend route/module structure proposed
-- [x] Backend module structure proposed
-- [x] Authentication and authorization approach proposed
-- [x] File-storage abstraction proposed
-- [x] Development phases proposed
-- [x] Initial architectural risks documented
-- [x] README, architecture, development, and content guides created
-- [x] Database design documented
-- [x] API conventions documented
-- [x] Development dependencies and roadmap documented
-- [x] React frontend foundation implemented
-- [x] React production build verified
+- [x] Architecture, database design, API conventions, implementation roadmap, and setup documentation
+- [x] React/TypeScript/Vite/Tailwind responsive application shell and initial routes
+- [x] .NET 10 Clean Architecture solution and MySQL EF Core foundation
+- [x] ASP.NET Core Identity registration/login, password hashing, JWT and permission-based authorization
+- [x] Audit log foundation, validation, Problem Details, Swagger, CORS, and health endpoints
+- [x] Versioned syllabus schema for exam stages, track-specific versions, subjects, papers, topic/subtopic items, sources, and topic progress
+- [x] `AddVersionedSyllabus` migration generated and reviewed
+- [x] Idempotent seeding for BPSC stage structure, official subject/marks outlines, source links, and explicit coverage notes
+- [x] Permission-protected syllabus stage/version/subject/paper/item/source management and publish/archive lifecycle
+- [x] Published syllabus tree/search/source APIs and user-scoped topic progress API
+- [x] Responsive API-backed syllabus explorer, source/verification labels, search, details, and progress controls
+- [x] Syllabus administration screens and in-memory sign-in/registration flow for authenticated actions
+- [x] Official source register documenting verified facts, source URLs, and content not yet verified
+- [x] Focused backend request-validation, password-hashing, pagination, and syllabus request tests
 
-## Pending implementation
+## Known limitations
 
-- [ ] Confirm .NET and package versions
-- [ ] Scaffold ASP.NET Core backend
-- [ ] Scaffold ASP.NET Core Clean Architecture solution
-- [ ] Configure MySQL and EF Core
-- [ ] Implement authentication and permissions
-- [ ] Implement versioned syllabus hierarchy
-- [ ] Implement admin content workflows
-- [ ] Implement file storage
-- [ ] Implement library and resource metadata
-- [ ] Implement MCQ practice and exams
-- [ ] Implement written practice
-- [ ] Implement viva practice
-- [ ] Implement planner and revision
-- [ ] Implement current-affairs workflows
-- [ ] Implement real-data dashboard
-- [ ] Add Docker and CI/CD
-- [ ] Add automated tests
-- [ ] Add backup and restore procedures
+- No local MySQL server was available. The migration is generated and reviewed but has not been applied; database/API integration smoke tests could not run.
+- BPSC's detailed Preliminary and Written PDF topic text has not been transcribed or verified. Seeded versions are marked `OutlineOnly`; no topic-level official text is invented.
+- The inspected BPSC Viva source states the oral exam marks/pass mark, but does not publish a topic-by-topic Viva syllabus. No Viva topics are seeded.
+- The 50th BCS 2025 Preliminary notice is exam-specific and is not applied as a universal version.
+- No administrator user is created or promoted automatically. Content-manager/admin provisioning remains an operator task.
+- Access JWTs are kept in browser memory and cleared on reload/expiry; refresh-token, logout revocation, and account-recovery flows are not implemented.
+- Topic notes are navigation-only in this phase; no notes are saved. MCQ, library, planner, and other study modules are out of scope.
 
-## Planned first vertical slice
+## Pending
 
-The first implementation slice should be small enough to validate architecture end to end:
-
-1. Project scaffolding
-2. Authentication baseline
-3. Database bootstrap
-4. One versioned syllabus hierarchy
-5. One admin CRUD workflow
-6. React authenticated shell and route guard
-7. Build and test
-
-It should not implement all subjects, exam rules, or all content modules in advance.
-
-## Known issues
--
-- No ASP.NET Core backend or database migrations exist.
-- The frontend intentionally uses isolated temporary presentation data.
-- Official BPSC syllabus details have not yet been manually reviewed and versioned.
-- The exact .NET and Node package versions are unselected.
-- Identity and refresh-token details require implementation decisions.
-- Initial storage provider is unselected.
-- Search behavior is unselected.
-- Initial public registration policy is unselected.
+- [ ] Apply migrations and verify seed/API behavior against a configured disposable MySQL database
+- [ ] Review and import detailed official syllabus topics into a new version after source verification
+- [ ] Add automated API integration and frontend end-to-end tests when a test database/runtime is available
+- [ ] Implement the remaining study, question-bank, library, planner, current-affairs, and deployment modules in roadmap order
 
 ## Testing status
 
-Frontend production build verified with `npm run build` on 2026-11-19.
-Backend and database tests are not applicable in this frontend phase.
+See the final task report for the latest backend build/tests and frontend build/lint results. Database migration application remains blocked by the unavailable local MySQL service.

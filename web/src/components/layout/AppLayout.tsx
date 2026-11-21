@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  Bell, BookMarked, BookOpen, CalendarDays, ChartNoAxesCombined, ChevronRight,
+  BookMarked, BookOpen, CalendarDays, ChartNoAxesCombined, ChevronRight,
   CircleCheck, LayoutDashboard, Library, Map, Menu, Mic2, Moon, Network,
-  Newspaper, PenTool, RotateCcw, Search, Settings, Sun, X,
+  Newspaper, PenTool, RotateCcw, Search, Settings, Sun, X, LogOut,
 } from 'lucide-react'
 import { useTheme } from '../../app/ThemeProvider'
+import { useAuth } from '../../app/useAuth'
 import { primaryNavigation, studyNavigation } from './navigation'
+import { Link } from 'react-router-dom'
 
 const icons = { LayoutDashboard, Map, Network, BookOpen, CircleCheck, PenTool, Mic2, CalendarDays, RotateCcw, ChartNoAxesCombined, Library, BookMarked, Newspaper }
 
@@ -36,6 +38,7 @@ export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { user, signOut } = useAuth()
   const location = useLocation()
   const segments = location.pathname.split('/').filter(Boolean)
 
@@ -53,11 +56,13 @@ export function AppLayout() {
         <div className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Study tools</div>
         <NavigationGroup items={studyNavigation} onNavigate={() => setMobileOpen(false)} />
       </div>
-      <div className="border-t border-slate-200 p-3 dark:border-slate-800">
-        <NavLink to="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
-          <Settings className="h-4 w-4" /> Administration
-        </NavLink>
-      </div>
+      {(user?.permissions.includes('admin.access') || user?.permissions.includes('syllabus.manage')) && (
+        <div className="border-t border-slate-200 p-3 dark:border-slate-800">
+          <NavLink to={user.permissions.includes('admin.access') ? '/admin' : '/admin/syllabus'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
+            <Settings className="h-4 w-4" /> Administration
+          </NavLink>
+        </div>
+      )}
     </div>
   )
 
@@ -88,14 +93,23 @@ export function AppLayout() {
           <div className="ml-auto flex items-center gap-1">
             <button aria-label="Search" onClick={() => setSearchOpen((value) => !value)} className="hidden items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-500 hover:border-slate-300 md:flex dark:border-slate-700 dark:hover:border-slate-600"><Search className="h-4 w-4" /><span>Search</span><kbd className="rounded border border-slate-200 px-1.5 py-0.5 text-xs dark:border-slate-700">/</kbd></button>
             <button aria-label="Toggle theme" onClick={toggleTheme} className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">{theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}</button>
-            <button aria-label="Notifications" className="relative rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><Bell className="h-5 w-5" /><span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" /></button>
+            {user ? (
+              <div className="ml-1 flex items-center gap-2 border-l border-slate-200 pl-3 dark:border-slate-700">
+                <span className="hidden max-w-36 truncate text-sm text-slate-600 sm:inline dark:text-slate-300">{user.displayName}</span>
+                <button type="button" onClick={signOut} className="inline-flex items-center gap-1 rounded-md px-2 py-2 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-slate-200" aria-label="Sign out">
+                  <LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sign out</span>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="ml-1 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500">Sign in</Link>
+            )}
           </div>
         </header>
         {searchOpen && (
           <div className="border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900 lg:px-6">
             <div className="relative mx-auto max-w-2xl">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input autoFocus aria-label="Global search" placeholder="Search topics, resources, notes and questions..." className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 dark:border-slate-700 dark:bg-slate-800" />
+              <input autoFocus aria-label="Global search preview" placeholder="Search preview (not connected)..." className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 dark:border-slate-700 dark:bg-slate-800" />
             </div>
           </div>
         )}
