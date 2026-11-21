@@ -99,7 +99,35 @@ public sealed class ApplicationDbContext(
     public DbSet<MistakeEntry> MistakeEntries => Set<MistakeEntry>();
     public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        // The MySQL driver returns DATE columns as DateTime, so convert to/from DateOnly explicitly.
+        configurationBuilder.Properties<DateOnly>().HaveConversion<DateOnlyConverter>().HaveColumnType("date");
+        configurationBuilder.Properties<DateOnly?>().HaveConversion<NullableDateOnlyConverter>().HaveColumnType("date");
+    }
+
+    private sealed class DateOnlyConverter() : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateOnly, DateTime>(
+        value => value.ToDateTime(TimeOnly.MinValue), value => DateOnly.FromDateTime(value));
+
+    private sealed class NullableDateOnlyConverter() : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateOnly?, DateTime?>(
+        value => value.HasValue ? value.Value.ToDateTime(TimeOnly.MinValue) : null,
+        value => value.HasValue ? DateOnly.FromDateTime(value.Value) : null);
+
     protected override void OnModelCreating(ModelBuilder builder)
+    {
+        ConfigureEntities(builder);
+
+        // MySQL/MariaDB limit a row to 65535 bytes (utf8mb4 = 4 bytes/char), so store long text as longtext.
+        foreach (var property in builder.Model.GetEntityTypes()
+                     .SelectMany(entityType => entityType.GetProperties())
+                     .Where(property => property.ClrType == typeof(string) && property.GetMaxLength() >= 2000
+                                        && !property.IsPrimaryKey() && !property.GetContainingIndexes().Any()))
+        {
+            property.SetColumnType("longtext");
+        }
+    }
+
+    private void ConfigureEntities(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 

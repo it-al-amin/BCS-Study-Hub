@@ -46,7 +46,7 @@ public static class DependencyInjection
         jwtSettings.Validate();
 
         services.AddSingleton(jwtSettings);
-        services.AddDbContext<ApplicationDbContext>(options => options.UseMySQL(connectionString));
+        services.AddDbContext<ApplicationDbContext>(options => options.UseMySqlWithoutMigrationLock(connectionString));
         services
             .AddIdentityCore<ApplicationUser>(options =>
             {
@@ -99,6 +99,7 @@ public static class DependencyInjection
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<SyllabusDataSeeder>();
         services.AddScoped<OfficialSourceSeeder>();
+        services.AddScoped<OfficialSourceMetadataScraper>();
 
         return services;
     }

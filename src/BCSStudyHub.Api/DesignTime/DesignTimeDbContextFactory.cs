@@ -25,7 +25,7 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
         }
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseMySQL(connectionString)
+            .UseMySqlWithoutMigrationLock(connectionString)
             .Options;
 
         return new ApplicationDbContext(options);

@@ -3,19 +3,16 @@ using System;
 using BCSStudyHub.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BCSStudyHub.Infrastructure.Persistence.Migrations
+namespace BCSStudyHub.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261121103144_AddStudyPlannerAndRevision")]
-    partial class AddStudyPlannerAndRevision
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -103,7 +100,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Notes")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("OfficialSourceId")
                         .HasColumnType("char(36)");
@@ -137,7 +134,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -401,7 +398,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Summary")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -742,7 +739,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -997,7 +994,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("TextSnapshot")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -1023,7 +1020,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("ExplanationSnapshot")
                         .HasMaxLength(8000)
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ImageUrlSnapshot")
                         .HasMaxLength(1024)
@@ -1039,7 +1036,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("PromptSnapshot")
                         .IsRequired()
                         .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("char(36)");
@@ -1115,7 +1112,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Instructions")
                         .IsRequired()
                         .HasMaxLength(3000)
-                        .HasColumnType("varchar(3000)");
+                        .HasColumnType("longtext");
 
                     b.Property<decimal>("MarksCorrect")
                         .HasPrecision(8, 2)
@@ -1193,7 +1190,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1243,7 +1240,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Explanation")
                         .HasMaxLength(8000)
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(1024)
@@ -1252,7 +1249,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Prompt")
                         .IsRequired()
                         .HasMaxLength(5000)
-                        .HasColumnType("varchar(5000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1303,7 +1300,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -1386,14 +1383,14 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("CorrectAnswerReference")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Explanation")
                         .HasMaxLength(8000)
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid?>("QuestionId")
                         .HasColumnType("char(36)");
@@ -1401,7 +1398,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("QuestionText")
                         .IsRequired()
                         .HasMaxLength(8000)
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTimeOffset?>("ResolvedAt")
                         .HasColumnType("datetime(6)");
@@ -1430,7 +1427,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("YourAnswer")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -1459,7 +1456,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsInternational")
                         .HasColumnType("tinyint(1)");
@@ -1498,7 +1495,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("UsageNotes")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("VerificationNote")
                         .HasMaxLength(1000)
@@ -1785,6 +1782,60 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.ToTable("RolePermissions", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.SiteSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("AnnouncementEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("AnnouncementEndsAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTimeOffset?>("AnnouncementStartsAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("AnnouncementText")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("AnnouncementTone")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("FooterNotice")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<bool>("RegistrationOpen")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("SiteName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("SupportEmail")
+                        .HasMaxLength(254)
+                        .HasColumnType("varchar(254)");
+
+                    b.Property<string>("Tagline")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteSettings", (string)null);
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.StudyGoal", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1927,7 +1978,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Stage")
                         .HasMaxLength(16)
@@ -1980,7 +2031,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("PlannedMinutes")
                         .HasColumnType("int");
@@ -2054,7 +2105,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
@@ -2080,7 +2131,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -2146,7 +2197,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateOnly?>("PublishedOn")
                         .HasColumnType("date");
@@ -2251,7 +2302,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasMaxLength(2000)
-                        .HasColumnType("varchar(2000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TrackCode")
                         .IsRequired()
@@ -2469,11 +2520,11 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("FeedbackNotes")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ImprovementAreas")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("datetime(6)");
@@ -2522,7 +2573,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("PromptSnapshot")
                         .IsRequired()
                         .HasMaxLength(10000)
-                        .HasColumnType("varchar(10000)");
+                        .HasColumnType("longtext");
 
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("char(36)");
@@ -2625,7 +2676,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Prompt")
                         .IsRequired()
                         .HasMaxLength(10000)
-                        .HasColumnType("varchar(10000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2947,7 +2998,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("AnswerGuidance")
                         .HasMaxLength(8000)
-                        .HasColumnType("varchar(8000)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("BcsExamYear")
                         .HasColumnType("int");
@@ -2972,7 +3023,7 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Property<string>("Prompt")
                         .IsRequired()
                         .HasMaxLength(12000)
-                        .HasColumnType("varchar(12000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()

@@ -26,7 +26,14 @@ jwtSettings.Validate();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "BCS Study Hub API", Version = "v1" }));
+{
+    // Define the Swagger document
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "BCS Study Hub API", Version = "v1" });
+    // Explicitly set the server base URL so Swagger UI knows where to send requests.
+    // Adjust the URL if the app runs behind a reverse proxy or on a different host/port.
+    options.AddServer(new OpenApiServer { Url = "https://localhost:44360" });
+});
+
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -103,16 +110,16 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    // Off by default: production normally applies the reviewed migration script before deploying. The container
-    // setup can opt in so a fresh database is created and upgraded on start. Migrations are additive.
-    if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
-    {
-        await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
-    }
-
     await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync();
     await scope.ServiceProvider.GetRequiredService<SyllabusDataSeeder>().SeedAsync();
     await scope.ServiceProvider.GetRequiredService<OfficialSourceSeeder>().SeedAsync();
+}
+
+if (app.Environment.IsDevelopment() && args.Contains("--scrape-sources"))
+{
+    await using var scrapeScope = app.Services.CreateAsyncScope();
+    await scrapeScope.ServiceProvider.GetRequiredService<OfficialSourceMetadataScraper>().RunAsync();
+    return;
 }
 
 if (behindProxy)

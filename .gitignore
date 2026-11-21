@@ -31,3 +31,6 @@ Thumbs.db
 
 # Deployment template (real .env stays ignored)
 !deploy/.env.example
+
+# IDE
+.vs/

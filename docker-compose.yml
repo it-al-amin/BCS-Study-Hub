@@ -34,7 +34,6 @@ services:
       Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN}
       AllowedHosts: ${ALLOWED_HOSTS:-*}
       ReverseProxy__Enabled: "true"
-      Database__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
       LibraryStorage__MaxFileSizeBytes: ${LIBRARY_MAX_FILE_BYTES:-52428800}
       LibraryStorage__UserQuotaBytes: ${LIBRARY_USER_QUOTA_BYTES:-2147483648}
     volumes:
