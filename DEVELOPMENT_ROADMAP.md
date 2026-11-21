@@ -62,98 +62,72 @@ Build:
 
 The verified outline/API/UI vertical slice is implemented. Detailed topic text remains unverified and is explicitly marked as such.
 
-## Phase 5 - Study content and personal notes
+## Phase 5 - Preliminary preparation and MCQ practice engine
+
+Dependencies: Phase 4
+
+The API, data model, migration, administration, and learner UI are implemented. The .NET build/tests and frontend build pass.
+
+Build:
+
+- sourced Preliminary MCQ authoring and browsing with topic/subtopic mapping and filters
+- topic, subject, mixed, and mock-exam sets with editable count, timing, and scoring configuration
+- server-authoritative answer validation, timeout handling, scoring, and attempt snapshots
+- history, review, bookmarks, mistakes, and performance analytics
+
+No sample questions or detailed topics are seeded. Publishing requires verified question sources and a verified topic in a published Preliminary version. Multiple-answer scoring uses exact-set matching; BPSC rules are not hardcoded.
+
+## Phase 6 - Written preparation
+
+Dependencies: Phase 4
+
+The Written question, answer-writing, study-note, goal, and reporting vertical slice is implemented with source verification and user ownership. It has no seeded question content and performs no automatic/AI evaluation.
+
+Build:
+
+- Written syllabus exploration with source and verification indicators
+- descriptive, analytical, essay, composition, and translation questions where verified
+- model answers, references, study notes, topic/resource mapping, and admin management
+- personal answer drafts, submission/revision history, word/time tracking, bookmarks, and self-assessment rubric
+- written progress, weak-topic tracking, goals, and writing reports
+
+Do not fabricate official content or imply automatic AI evaluation.
+
+## Phase 7 - Complete Viva preparation
 
 Dependencies: Phase 4
 
 Build:
 
-- tags/categories
-- study notes
-- personal notes
-- content revision/publish workflow
+- editable Viva categories and source-aware questions with topic/category/search filters
+- private bookmarks, answer notes/revisions, question history, and profile preparation
+- ordered mock sessions, answer notes, completion, self-evaluation, feedback, and weak-topic tracking
+- permission-protected category/question administration
 
-## Phase 6 - Digital library
+Categories are application taxonomy, not an official BPSC topic list. No questions are seeded; voice recording and AI evaluation are not implemented.
 
-Dependencies: Phase 4 and storage provider decision
+## Phase 8 - Digital library
 
-Build:
-
-- resource metadata
-- secure upload/download
-- local storage first or approved cloud provider
-- books and chapters
-- collections
-- bookmarks
-- reading progress
-- resource personal notes
-- topic associations
-
-## Phase 7 - MCQ foundation
-
-Dependencies: Phases 4 and 5
+Dependencies: Phase 4 and storage provider decision (local filesystem behind `IFileStorage` for now)
 
 Build:
 
-- question/options
-- answer explanations
-- topic filtering
-- practice sessions
-- attempt snapshots
-- attempt history
-- weak-topic calculation
+- resource metadata, secure upload/download, books and chapters, collections, bookmarks, reading progress, personal notes, and topic associations
+- private (owner-only) and shared (`library.manage`, draft/publish/archive) resources with a recorded rights basis
 
-## Phase 8 - Mock exams
+Copyright, access control and file security were reviewed before implementation; see [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md). No library content is seeded. Malware scanning and a cloud storage provider are deferred.
 
-Dependencies: Phase 7
+## Phase 9 - Planner and progress
+
+Dependencies: Phases 4, 5, and 6
 
 Build:
 
-- exam templates
-- sections
-- timed attempts
-- randomization
-- server-authoritative submission
-- review
-- score trends
+- daily/weekly goals, study sessions, topic progress, revision queue, mistake notebook, real database dashboard, and recent activity
 
-## Phase 9 - Written and viva
+## Phase 10 - Current affairs and government resources
 
-Dependencies: Phases 4 and 5
-
-Build written:
-
-- written questions
-- answer submission
-- personal evaluation
-- model answers and references
-- answer history
-
-Build viva:
-
-- viva questions
-- topic/profile/category filters
-- mock sessions
-- personal answer notes
-- ratings and follow-up
-
-## Phase 10 - Planner and progress
-
-Dependencies: Phases 4, 5, and 7
-
-Build:
-
-- daily/weekly goals
-- study sessions
-- topic progress
-- revision queue
-- mistake notebook
-- real database dashboard
-- recent activity
-
-## Phase 11 - Current affairs and government resources
-
-Dependencies: Phases 4 and 6
+Dependencies: Phases 4, 6, and 8
 
 Build:
 
@@ -164,7 +138,7 @@ Build:
 - government resource directory
 - official external-link management
 
-## Phase 12 - Hardening
+## Phase 11 - Hardening
 
 Dependencies: all selected modules
 
@@ -185,11 +159,9 @@ Build:
 ```text
 Identity --------> every authenticated module
 Syllabus ---------> topics, progress, questions, resources
-Content ----------> notes, syllabus
-Library ----------> syllabus, books, current affairs
-MCQ --------------> syllabus, attempt analytics
-Mock Exam --------> MCQ, exam templates
+MCQ --------------> verified Preliminary syllabus items, attempt analytics
 Written ----------> syllabus, personal answer state
+Library ----------> syllabus, books, current affairs
 Viva -------------> syllabus, personal session state
 Planner ----------> syllabus, sessions, revision
 Dashboard --------> progress, attempts, planner, revision
@@ -238,8 +210,40 @@ Admin ------------> every editable entity
 - [x] Add admin UI
 - [x] Add request validation and build/tests
 
+### Phase 5 - MCQ
+
+- [x] Add Preliminary-only MCQ entities, source references, tags, exam sets, attempt snapshots, bookmarks, and mistakes
+- [x] Add permission-protected question/set management and publication validation
+- [x] Add question bank, practice/mock attempt interface, review/history, bookmarks, mistakes, and analytics
+- [x] Add server-side answer validation and configurable scoring tests
+- [x] Generate migration and idempotent SQL script
+- [ ] Apply migrations and run MySQL integration tests when a configured database is available
+
+### Phase 6 - Written
+
+- [x] Add source-aware Written question, model answer/reference, resource, and topic-mapping entities/APIs/admin workflow
+- [x] Add private answer drafts, server word count, self-assessment, submissions, immutable revisions, and bookmarks
+- [x] Add Written study notes, writing goals, and topic-level progress reports
+- [x] Add responsive Written syllabus/question browser, answer-writing workspace, history, notes, bookmarks, and admin UI
+- [x] Generate and inspect the Written migration
+- [ ] Apply migrations and run MySQL integration tests when a configured database is available
+
+### Phase 8 - Digital library
+
+- [x] Review copyright, access control and file security before implementation
+- [x] Add resource, book, file, chapter, mapping, tag, collection, bookmark, reading-progress, and personal-note entities
+- [x] Add `IFileStorage`, a local provider, verified uploads, quotas, rate limits, and secured streaming downloads
+- [x] Add private/shared visibility, `library.manage` administration, and rights-basis enforcement for shared files
+- [x] Add library dashboard, catalogs, detail/viewer, editor, collections, reading/bookmarks, and admin UI
+- [x] Add file-security, validation, and service-level access-control tests
+- [x] Generate and inspect the `AddDigitalLibrary` migration
+- [ ] Apply migrations and run MySQL/HTTP integration tests when a configured database is available
+- [ ] Add malware scanning and an object-storage provider when infrastructure is approved
+
 ### Future modules
 
-- [ ] Add in dependency order only
+- [x] Implement Phase 7 Viva categories, questions, private practice state, ordered sessions, profile preparation, and admin
+- [x] Implement Phase 8 digital library
+- [ ] Add remaining modules in dependency order only
 - [ ] Review database impact before each migration
 - [ ] Keep module scope to one vertical slice

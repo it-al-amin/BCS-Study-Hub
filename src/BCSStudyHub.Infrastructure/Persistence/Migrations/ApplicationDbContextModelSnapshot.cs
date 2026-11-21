@@ -90,6 +90,997 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.ToTable("ExamStages", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookChapter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("ChapterNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EndPage")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("StartPage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResourceId", "ChapterNumber")
+                        .IsUnique();
+
+                    b.ToTable("LibraryBookChapters", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookDetails", b =>
+                {
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Edition")
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("Isbn")
+                        .HasMaxLength(13)
+                        .HasColumnType("varchar(13)");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<int?>("PageCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PublicationYear")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Publisher")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("ResourceId");
+
+                    b.HasIndex("Isbn");
+
+                    b.ToTable("LibraryBookDetails", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookmark", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ChapterId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Label")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<int?>("Page")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.HasIndex("UserId", "ResourceId");
+
+                    b.ToTable("LibraryBookmarks", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryChapterResource", b =>
+                {
+                    b.Property<Guid>("ChapterId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ChapterId", "ResourceId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.ToTable("LibraryChapterResources", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryChapterTopic", b =>
+                {
+                    b.Property<Guid>("ChapterId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ChapterId", "SyllabusItemId");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.ToTable("LibraryChapterTopics", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryCollection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("LibraryCollections", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryCollectionItem", b =>
+                {
+                    b.Property<Guid>("CollectionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("CollectionId", "ResourceId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.ToTable("LibraryCollectionItems", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("StorageProvider")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UploadedById")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique();
+
+                    b.HasIndex("UploadedById");
+
+                    b.HasIndex("ResourceId", "Role")
+                        .IsUnique();
+
+                    b.ToTable("LibraryFiles", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryPersonalNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("ChapterId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("Page")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.HasIndex("UserId", "ResourceId", "UpdatedAt");
+
+                    b.ToTable("LibraryPersonalNotes", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryReadingProgress", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CurrentChapterId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("CurrentPage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PercentComplete")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<int?>("TotalPages")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "ResourceId");
+
+                    b.HasIndex("CurrentChapterId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.HasIndex("UserId", "Status", "UpdatedAt");
+
+                    b.ToTable("LibraryReadingProgress", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Authors")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("NoteContent")
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateOnly?>("PublicationDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("RightsBasis")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("RightsNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("SourceName")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Title");
+
+                    b.HasIndex("UpdatedAt");
+
+                    b.HasIndex("OwnerId", "Visibility");
+
+                    b.HasIndex("Visibility", "Status", "Kind");
+
+                    b.ToTable("LibraryResources", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceSubject", b =>
+                {
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ResourceId", "SubjectId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("LibraryResourceSubjects", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceTag", b =>
+                {
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.HasKey("ResourceId", "Tag");
+
+                    b.HasIndex("Tag");
+
+                    b.ToTable("LibraryResourceTags", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceTopic", b =>
+                {
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("ResourceId", "SyllabusItemId");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.ToTable("LibraryResourceTopics", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("CorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DurationSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ExamSetId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ExamSetNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("IncorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsTimedOut")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("MarksCorrect")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("MarksIncorrect")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("MarksUnanswered")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("MaximumScore")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<decimal?>("Score")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<bool>("ShowFeedbackImmediately")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UnansweredCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamSetId");
+
+                    b.HasIndex("UserId", "StartedAt");
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("McqAttempts", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptAnswer", b =>
+                {
+                    b.Property<Guid>("AttemptQuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool?>("IsCorrect")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsMarkedForReview")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal?>("MarksAwarded")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("SelectedOptionIdsJson")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("AttemptQuestionId");
+
+                    b.ToTable("McqAttemptAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AttemptQuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SourceOptionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TextSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptQuestionId", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("McqAttemptOptions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AttemptId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("ExplanationSnapshot")
+                        .HasMaxLength(8000)
+                        .HasColumnType("varchar(8000)");
+
+                    b.Property<string>("ImageUrlSnapshot")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("ParentTopicTitleSnapshot")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PromptSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("varchar(5000)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SourcesSnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("SyllabusItemIdSnapshot")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TopicTitleSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptId", "Position")
+                        .IsUnique();
+
+                    b.HasIndex("AttemptId", "QuestionId")
+                        .IsUnique();
+
+                    b.ToTable("McqAttemptQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqBookmark", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("McqBookmarks", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqExamSet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("BcsExamYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Difficulty")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int?>("DurationSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("varchar(3000)");
+
+                    b.Property<decimal>("MarksCorrect")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("MarksIncorrect")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<decimal>("MarksUnanswered")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<int>("QuestionCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ShowFeedbackImmediately")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<Guid?>("SubjectId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SyllabusVersionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.HasIndex("SyllabusVersionId");
+
+                    b.HasIndex("Status", "Mode");
+
+                    b.ToTable("McqExamSets", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqMistake", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("LastAttemptId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "QuestionId");
+
+                    b.HasIndex("LastAttemptId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId", "Status", "UpdatedAt");
+
+                    b.ToTable("McqMistakes", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("BcsExamYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int?>("ExamNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExamReference")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("Explanation")
+                        .HasMaxLength(8000)
+                        .HasColumnType("varchar(8000)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(1024)
+                        .HasColumnType("varchar(1024)");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("varchar(5000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<Guid>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BcsExamYear");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ExamNumber");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.HasIndex("Status", "Difficulty");
+
+                    b.ToTable("McqQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("McqQuestionOptions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionSourceReference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Citation")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateOnly?>("PublishedOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("McqQuestionSourceReferences", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionTag", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.HasKey("QuestionId", "Tag");
+
+                    b.HasIndex("Tag");
+
+                    b.ToTable("McqQuestionTags", (string)null);
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.Paper", b =>
                 {
                     b.Property<Guid>("Id")
@@ -445,6 +1436,801 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.ToTable("TopicProgress", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaAnswerNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId", "QuestionId")
+                        .IsUnique();
+
+                    b.ToTable("VivaAnswerNotes", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaAnswerNoteRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AnswerNoteId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerNoteId", "RevisionNumber")
+                        .IsUnique();
+
+                    b.ToTable("VivaAnswerNoteRevisions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaBookmark", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("VivaBookmarks", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "DisplayOrder");
+
+                    b.ToTable("VivaCategories", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaMockSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("ClarityRating")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CommunicationRating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("ConfidenceRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FeedbackNotes")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<string>("ImprovementAreas")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int?>("SubjectKnowledgeRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StartedAt");
+
+                    b.ToTable("VivaMockSessions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaMockSessionQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("AnswerNotes")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CategorySnapshot")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<bool>("NeedsRevision")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("PromptSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("varchar(10000)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TopicSnapshot")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("NeedsRevision", "TopicSnapshot");
+
+                    b.HasIndex("SessionId", "QuestionId")
+                        .IsUnique();
+
+                    b.HasIndex("SessionId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("VivaMockSessionQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaProfilePreparation", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("AcademicBackground")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CadrePreferences")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("HomeDistrict")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("InterestsAndHobbies")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ProfessionalExperience")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SelfIntroduction")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StrengthsAndDevelopmentAreas")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UniversityAndSubject")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("VivaProfilePreparations", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("BcsExamYear")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("ExamNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExamReference")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("varchar(10000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Topic")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BcsExamYear");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("Status", "CategoryId");
+
+                    b.HasIndex("Topic", "Status");
+
+                    b.ToTable("VivaQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestionHistory", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("LastViewedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId", "LastViewedAt");
+
+                    b.ToTable("VivaQuestionHistory", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestionReference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Citation")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId", "Type");
+
+                    b.ToTable("VivaQuestionReferences", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("SelfAssessmentJson")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("TimeSpentSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("WordCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("UserId", "UpdatedAt");
+
+                    b.HasIndex("UserId", "QuestionId", "Status");
+
+                    b.ToTable("WrittenAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenAnswerRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AnswerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SelfAssessmentJson")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("TimeSpentSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WordCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AnswerId", "RevisionNumber")
+                        .IsUnique();
+
+                    b.ToTable("WrittenAnswerRevisions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenBookmark", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("WrittenBookmarks", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenGoal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("TargetSubmissions")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetWords")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "StartDate", "EndDate");
+
+                    b.ToTable("WrittenGoals", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenModelAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId")
+                        .IsUnique();
+
+                    b.HasIndex("UpdatedById");
+
+                    b.ToTable("WrittenModelAnswers", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenModelAnswerReference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Citation")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<Guid>("ModelAnswerId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModelAnswerId");
+
+                    b.ToTable("WrittenModelAnswerReferences", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("AnswerGuidance")
+                        .HasMaxLength(8000)
+                        .HasColumnType("varchar(8000)");
+
+                    b.Property<int?>("BcsExamYear")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int?>("ExamNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ExamReference")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<decimal?>("Marks")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<string>("Prompt")
+                        .IsRequired()
+                        .HasMaxLength(12000)
+                        .HasColumnType("varchar(12000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<Guid>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BcsExamYear");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.HasIndex("Status", "Type");
+
+                    b.ToTable("WrittenQuestions", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId", "Url")
+                        .IsUnique();
+
+                    b.ToTable("WrittenQuestionResources", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionSourceReference", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Citation")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateOnly?>("PublishedOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Publisher")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("varchar(180)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("VerificationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.ToTable("WrittenQuestionSourceReferences", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionTag", b =>
+                {
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Tag")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.HasKey("QuestionId", "Tag");
+
+                    b.HasIndex("Tag");
+
+                    b.ToTable("WrittenQuestionTags", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenStudyNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("SyllabusItemId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SyllabusItemId");
+
+                    b.HasIndex("UserId", "SyllabusItemId", "UpdatedAt");
+
+                    b.ToTable("WrittenStudyNotes", (string)null);
+                });
+
             modelBuilder.Entity("BCSStudyHub.Infrastructure.Identity.ApplicationRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -655,6 +2441,413 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookChapter", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany("Chapters")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookDetails", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithOne("Book")
+                        .HasForeignKey("BCSStudyHub.Domain.Entities.LibraryBookDetails", "ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookmark", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryBookChapter", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryChapterResource", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryBookChapter", "Chapter")
+                        .WithMany("LinkedResources")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryChapterTopic", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryBookChapter", "Chapter")
+                        .WithMany("Topics")
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("SyllabusItem");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryCollection", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryCollectionItem", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryCollection", "Collection")
+                        .WithMany("Items")
+                        .HasForeignKey("CollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Collection");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryFile", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany("Files")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UploadedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryPersonalNote", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryBookChapter", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chapter");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryReadingProgress", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryBookChapter", "CurrentChapter")
+                        .WithMany()
+                        .HasForeignKey("CurrentChapterId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CurrentChapter");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResource", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceSubject", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany("Subjects")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceTag", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany("Tags")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResourceTopic", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.LibraryResource", "Resource")
+                        .WithMany("Topics")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+
+                    b.Navigation("SyllabusItem");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttempt", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqExamSet", "ExamSet")
+                        .WithMany()
+                        .HasForeignKey("ExamSetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExamSet");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptAnswer", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqAttemptQuestion", "AttemptQuestion")
+                        .WithOne("Answer")
+                        .HasForeignKey("BCSStudyHub.Domain.Entities.McqAttemptAnswer", "AttemptQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttemptQuestion");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptOption", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqAttemptQuestion", "AttemptQuestion")
+                        .WithMany("Options")
+                        .HasForeignKey("AttemptQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttemptQuestion");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptQuestion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqAttempt", "Attempt")
+                        .WithMany("Questions")
+                        .HasForeignKey("AttemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attempt");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqBookmark", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqExamSet", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusVersion", "SyllabusVersion")
+                        .WithMany()
+                        .HasForeignKey("SyllabusVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("SyllabusItem");
+
+                    b.Navigation("SyllabusVersion");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqMistake", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqAttempt", "LastAttempt")
+                        .WithMany()
+                        .HasForeignKey("LastAttemptId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LastAttempt");
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SyllabusItem");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionOption", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqQuestion", "Question")
+                        .WithMany("Options")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionSourceReference", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqQuestion", "Question")
+                        .WithMany("Sources")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestionTag", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.McqQuestion", "Question")
+                        .WithMany("Tags")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.Paper", b =>
                 {
                     b.HasOne("BCSStudyHub.Domain.Entities.SyllabusSubject", "SyllabusSubject")
@@ -793,6 +2986,282 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Navigation("SyllabusItem");
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaAnswerNote", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaAnswerNoteRevision", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaAnswerNote", "AnswerNote")
+                        .WithMany("Revisions")
+                        .HasForeignKey("AnswerNoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AnswerNote");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaBookmark", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaMockSession", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaMockSessionQuestion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaMockSession", "Session")
+                        .WithMany("Questions")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaProfilePreparation", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaCategory", "Category")
+                        .WithMany("Questions")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestionHistory", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestionReference", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.VivaQuestion", "Question")
+                        .WithMany("References")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenAnswer", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenAnswerRevision", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenAnswer", "Answer")
+                        .WithMany("Revisions")
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Answer");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenBookmark", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenGoal", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenModelAnswer", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithOne("ModelAnswer")
+                        .HasForeignKey("BCSStudyHub.Domain.Entities.WrittenModelAnswer", "QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenModelAnswerReference", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenModelAnswer", "ModelAnswer")
+                        .WithMany("References")
+                        .HasForeignKey("ModelAnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ModelAnswer");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("SyllabusItem");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionResource", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithMany("Resources")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionSourceReference", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithMany("Sources")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestionTag", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.WrittenQuestion", "Question")
+                        .WithMany("Tags")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenStudyNote", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.SyllabusItem", "SyllabusItem")
+                        .WithMany()
+                        .HasForeignKey("SyllabusItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SyllabusItem");
+                });
+
             modelBuilder.Entity("BCSStudyHub.Infrastructure.Identity.UserRoleMapping", b =>
                 {
                     b.HasOne("BCSStudyHub.Infrastructure.Identity.ApplicationRole", null)
@@ -849,6 +3318,54 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Navigation("SyllabusVersions");
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookChapter", b =>
+                {
+                    b.Navigation("LinkedResources");
+
+                    b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryCollection", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryResource", b =>
+                {
+                    b.Navigation("Book");
+
+                    b.Navigation("Chapters");
+
+                    b.Navigation("Files");
+
+                    b.Navigation("Subjects");
+
+                    b.Navigation("Tags");
+
+                    b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttempt", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqAttemptQuestion", b =>
+                {
+                    b.Navigation("Answer");
+
+                    b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.McqQuestion", b =>
+                {
+                    b.Navigation("Options");
+
+                    b.Navigation("Sources");
+
+                    b.Navigation("Tags");
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.Paper", b =>
                 {
                     b.Navigation("Items");
@@ -892,6 +3409,47 @@ namespace BCSStudyHub.Infrastructure.Persistence.Migrations
                     b.Navigation("SourceReferences");
 
                     b.Navigation("Subjects");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaAnswerNote", b =>
+                {
+                    b.Navigation("Revisions");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaCategory", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaMockSession", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.VivaQuestion", b =>
+                {
+                    b.Navigation("References");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenAnswer", b =>
+                {
+                    b.Navigation("Revisions");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenModelAnswer", b =>
+                {
+                    b.Navigation("References");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.WrittenQuestion", b =>
+                {
+                    b.Navigation("ModelAnswer");
+
+                    b.Navigation("Resources");
+
+                    b.Navigation("Sources");
+
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }

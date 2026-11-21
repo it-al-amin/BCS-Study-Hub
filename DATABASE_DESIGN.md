@@ -8,7 +8,7 @@ MySQL is the system of record for identities, syllabus versions, content metadat
 
 `InitialIdentityAndAudit` creates ASP.NET Core Identity tables, `Permissions`, `RolePermissions`, and `AuditLogs`. `AddVersionedSyllabus` adds the versioned examination/syllabus hierarchy, official source references, and user-owned topic progress. Users and roles use GUID keys. Permissions are assigned to database-managed roles; the seeded baseline is Candidate, ContentManager, and Administrator.
 
-Question-bank, library, planner, written-question, and viva-question tables remain out of scope.
+`AddMcqPracticeEngine` adds the Preliminary MCQ question bank, dynamic practice-set configurations, answer snapshots, attempts, bookmarks, and mistake tracking. `AddWrittenPreparation` adds source-aware Written questions/model answers, user-owned answer revisions, bookmarks, notes, goals, and reports. `AddVivaPreparation` adds editable Viva categories and questions/references, user-owned notes/revisions/bookmarks/question history, ordered mock sessions and answers, and private profile preparation.
 
 The initial audit records cover successful registration and login and exclude credentials and token values. Additional audited mutations will be added with their respective modules.
 
@@ -180,192 +180,269 @@ MistakeEntry
 ### Questions and attempts
 
 ```text
-Question
+McqQuestion
   - Id
-  - QuestionType
+  - SyllabusItemId (Topic or Subtopic)
   - Prompt
-  - AnswerExplanation
-  - Difficulty
-  - Status
-  - SourceId nullable
-  - PublishedAt
+  - Explanation
+  - ImageUrl (HTTPS reference only)
+  - Type (SingleAnswer, MultipleAnswer)
+  - Difficulty (Easy, Medium, Hard)
+  - Status (Draft, Published, Archived)
+  - BcsExamYear nullable
+  - ExamNumber nullable
+  - ExamReference nullable
+  - CreatedById
+  - timestamps
 
-QuestionSyllabusLink
-  - QuestionId
-  - SyllabusVersionId
-  - TopicId nullable
-  - SubtopicId nullable
-
-McqOption
+McqQuestionOption
   - Id
   - QuestionId
   - Text
-  - IsCorrect
-  - Explanation
   - SortOrder
+  - IsCorrect (never exposed in an active attempt)
 
-PreviousQuestion
-  - QuestionId
-  - ExamYear
-  - ExamSession
-  - OfficialReference
-
-ExamTemplate
+McqQuestionSourceReference
   - Id
-  - Name
-  - ExamStageId
+  - QuestionId
+  - Title
+  - Publisher
+  - Url
+  - Citation
+  - PublishedOn
+  - VerificationStatus
+
+McqQuestionTag (QuestionId, Tag)
+
+McqExamSet
+  - Id
   - SyllabusVersionId
-  - DurationSeconds
-  - Instructions
+  - SubjectId nullable
+  - SyllabusItemId nullable
+  - Mode (Topic, Subject, Mixed, MockExam)
+  - QuestionCount
+  - DurationSeconds nullable
+  - BcsExamYear nullable
+  - Difficulty nullable
+  - MarksCorrect
+  - MarksIncorrect
+  - MarksUnanswered
+  - ShowFeedbackImmediately
   - Status
 
-ExamSection
-  - Id
-  - ExamTemplateId
-  - Name
-  - SortOrder
-  - QuestionCount
-
-ExamTemplateQuestion
-  - ExamTemplateId
-  - SectionId nullable
-  - QuestionId
-  - Marks
-  - SortOrder nullable
-
-ExamAttempt
+McqAttempt
   - Id
   - UserId
-  - ExamTemplateId
+  - ExamSetId
+  - scoring/mode/duration snapshots
   - StartedAt
+  - ExpiresAt nullable
   - SubmittedAt nullable
-  - Score
-  - Status
-  - SnapshotJson
+  - IsTimedOut
+  - Score nullable
+  - CorrectCount / IncorrectCount / UnansweredCount
 
-ExamAttemptAnswer
+McqAttemptQuestion
   - Id
-  - ExamAttemptId
+  - AttemptId
   - QuestionId
-  - SelectedOptionId nullable
+  - prompt/topic/source snapshots
+  - Position
+
+McqAttemptOption
+  - Id
+  - AttemptQuestionId
+  - SourceOptionId
+  - TextSnapshot
+  - IsCorrect
+
+McqAttemptAnswer
+  - AttemptQuestionId
+  - SelectedOptionIdsJson
+  - IsMarkedForReview
   - IsCorrect nullable
-  - MarksAwarded
-  - TimeSpentSeconds
-  - AnswerSnapshotJson
+  - MarksAwarded nullable
+  - UpdatedAt
+
+McqBookmark (UserId, QuestionId)
+McqMistake (UserId, QuestionId, LastAttemptId, Status, Notes, timestamps)
 ```
 
-The attempt snapshots prompt/options/scores at attempt start so later edits do not rewrite completed history.
+Questions map directly to one topic/subtopic in a published Preliminary syllabus version. Publishing a question requires verified question-source references and a verified syllabus item; the system does not seed invented or unverified question content. Attempt question/option, scoring, topic, and source snapshots preserve submitted history if editorial content or set configuration later changes. The server validates selected option IDs and calculates results from the stored correct-option snapshot; client-submitted scores and correctness are not accepted. Multiple-answer questions use exact-set matching, with no assumed partial credit. Each exam set stores editable scoring and timing configuration; no BPSC negative-marking rule is hardcoded.
 
 ### Written preparation
 
 ```text
 WrittenQuestion
   - Id
+  - SyllabusItemId (verified topic/subtopic in a Written version)
+  - Prompt
+  - Type (Descriptive, Analytical, Essay, Composition, Translation)
+  - Status (Draft, Published, Archived)
+  - BcsExamYear / ExamNumber / ExamReference
+  - Marks nullable
+  - AnswerGuidance
+  - CreatedById / timestamps
+
+WrittenQuestionSourceReference
   - QuestionId
-  - Format
-  - SuggestedMarks
-  - WordLimitMin nullable
-  - WordLimitMax nullable
+  - Title / Publisher / HTTPS Url / Citation / PublishedOn
+  - VerificationStatus
+
+WrittenQuestionResource
+  - QuestionId
+  - Title / HTTPS Url
+
+WrittenQuestionTag (QuestionId, Tag)
+
+WrittenModelAnswer
+  - QuestionId (one per question)
+  - Content
+  - Status (Draft, Published, Archived)
+  - UpdatedById / UpdatedAt
+
+WrittenModelAnswerReference
+  - ModelAnswerId
+  - Title / Publisher / HTTPS Url / Citation
+  - VerificationStatus
 
 WrittenAnswer
   - Id
   - UserId
-  - WrittenQuestionId
-  - Content
-  - SubmittedAt
-  - Status
+  - QuestionId
+  - Status (Draft, Submitted)
+  - Current Content / server-calculated WordCount
+  - SelfAssessmentJson (personal only)
+  - TimeSpentSeconds (self-reported)
+  - StartedAt / UpdatedAt / SubmittedAt
 
-AnswerEvaluation
+WrittenAnswerRevision
   - Id
-  - WrittenAnswerId
-  - EvaluatorUserId nullable
-  - RubricJson
-  - Score
-  - Feedback
+  - AnswerId / RevisionNumber
+  - Kind (DraftSave, Submission, RevisionStarted)
+  - Content snapshot / WordCount / TimeSpentSeconds
+  - SelfAssessmentJson / CreatedAt
 
-ModelAnswer
+WrittenBookmark (UserId, QuestionId)
+
+WrittenGoal
   - Id
-  - WrittenQuestionId
-  - Content
-  - Status
-  - SourceId nullable
+  - UserId
+  - StartDate / EndDate
+  - TargetSubmissions / TargetWords
+
+WrittenStudyNote
+  - Id
+  - UserId / SyllabusItemId
+  - Title / Content
+  - CreatedAt / UpdatedAt
 ```
+
+Only source-attributed questions mapped to verified items in published Written syllabus versions can be published. Model answers have their own publication status and require verified references. Personal answers, notes, goals, bookmarks, and revision history are scoped to their owner. Word count is server-calculated; time is explicitly self-reported. Self-assessment is not an official score or automated/AI evaluation.
 
 ### Viva preparation
 
 ```text
 VivaQuestion
   - Id
-  - QuestionId
-  - Category
-  - PromptAreas
+  - CategoryId
+  - Topic nullable (editor-defined)
+  - Prompt
+  - Status (Draft / Published / Archived)
+  - Optional BCS exam year/number/reference
 
-MockVivaSession
+VivaCategory
   - Id
-  - UserId
-  - StartedAt
-  - CompletedAt nullable
-  - OverallRating
-  - PersonalNotes
+  - Slug / Name / Description
+  - DisplayOrder / IsActive
 
-VivaSessionAnswer
+VivaQuestionReference
   - Id
-  - MockVivaSessionId
   - VivaQuestionId
-  - AnswerNote
-  - Rating
+  - Type (QuestionSource / SuggestedAnswer)
+  - Title / Publisher / HTTPS URL / Citation
+  - VerificationStatus (editor-entered)
 
-CadreResearchProfile
+VivaBookmark (UserId, VivaQuestionId)
+VivaQuestionHistory (UserId, VivaQuestionId)
+
+VivaAnswerNote
   - Id
   - UserId
-  - CadreInterest
-  - ProfileJson
+  - VivaQuestionId
+  - Content / CreatedAt / UpdatedAt
+
+VivaAnswerNoteRevision
+  - VivaAnswerNoteId
+  - RevisionNumber / Content / CreatedAt
+
+VivaMockSession
+  - Id
+  - UserId / Title / Status
+  - StartedAt / CompletedAt
+  - Optional 1-5 self-ratings
+  - FeedbackNotes / ImprovementAreas
+
+VivaMockSessionQuestion
+  - SessionId / VivaQuestionId / Sequence
+  - PromptSnapshot / CategorySnapshot / TopicSnapshot
+  - AnswerNotes / NeedsRevision
+
+VivaProfilePreparation
+  - UserId
+  - SelfIntroduction / AcademicBackground / UniversityAndSubject
+  - HomeDistrict / ProfessionalExperience / CadrePreferences
+  - InterestsAndHobbies / StrengthsAndDevelopmentAreas
+  - UpdatedAt
 ```
 
-### Library
+Viva categories are seeded from the project-requested labels and remain editable. They are application taxonomy only, not a BPSC-published topic list. No Viva questions or model answers are seeded. User notes, sessions, history, bookmarks, evaluations, and profile fields are owner-scoped. Session question text/order is snapshotted for history stability. Ratings and weak-topic flags are personal reflections, not official or automated evaluation; no voice or AI data is stored.
+
+### Library (implemented in `AddDigitalLibrary`)
 
 ```text
-Book
-  - Id
-  - Title
-  - AuthorsJson
-  - Publisher
-  - Edition
-  - PublicationYear
-  - Description
-  - CoverResourceId nullable
+LibraryResources
+  - Id, OwnerId -> AspNetUsers (restrict)
+  - Kind: Book | File | ExternalLink | Note (fixed at creation)
+  - Category: General | Textbook | StudyNote | GovernmentPublication | Report | NewspaperArticle | Reference | ChapterMaterial | Other
+  - Visibility: Private | Shared;  Status: Draft | Published | Archived
+  - Title, Description, Authors, SourceName, SourceType, Website, Url, PublicationDate (date)
+  - RightsBasis: NotApplicable | PersonalCopy | OwnWork | PublicDomain | GovernmentPublication | OpenLicense | PermissionGranted
+  - RightsNote, NoteContent (longtext), CreatedAt, UpdatedAt, PublishedAt
+  - IX (Visibility, Status, Kind), (OwnerId, Visibility), Title, UpdatedAt
 
-BookChapter
-  - Id
-  - BookId
-  - Title
-  - ChapterNumber
-  - ResourceId nullable
+LibraryBookDetails            1:1 with a Book resource (PK = ResourceId, cascade)
+  - Publisher, Edition, PublicationYear, Isbn (normalised ISBN-10/13, indexed), PageCount, Language
 
-Resource
-  - Id
-  - ResourceType
-  - Title
-  - OriginalFileName nullable
-  - StorageProvider
-  - StorageKey nullable
-  - ExternalUrl nullable
-  - MimeType
-  - SizeBytes
-  - Checksum
-  - Visibility
-  - Status
-  - UploaderId
+LibraryFiles                  metadata only; bytes live in IFileStorage
+  - Id, ResourceId (cascade), Role: Primary | Cover, Format: Pdf | Image | Document | Text
+  - OriginalFileName (sanitised), ContentType (server-detected), SizeBytes, Sha256 char(64)
+  - StorageProvider, StorageKey (unique), UploadedById -> AspNetUsers (restrict), UploadedAt
+  - UX (ResourceId, Role)
 
-ResourceCollection
-ResourceCollectionItem
-ResourceSyllabusLink
-ResourceBookmark
-ResourceReadingProgress
-ResourcePersonalNote
-SourceAttribution
-ResourceSource
+LibraryBookChapters           Id, ResourceId (cascade), ChapterNumber, Title, Summary, StartPage, EndPage; UX (ResourceId, ChapterNumber)
+LibraryChapterTopics          PK (ChapterId, SyllabusItemId); SyllabusItem restrict
+LibraryChapterResources       PK (ChapterId, ResourceId); chapter-wise resources, both cascade
+LibraryResourceSubjects       PK (ResourceId, SubjectId); Subject restrict
+LibraryResourceTopics         PK (ResourceId, SyllabusItemId); SyllabusItem restrict
+LibraryResourceTags           PK (ResourceId, Tag)
+
+LibraryCollections            Id, OwnerId (cascade), Name, Description; UX (OwnerId, Name)
+LibraryCollectionItems        PK (CollectionId, ResourceId), SortOrder, AddedAt
+LibraryBookmarks              Id, UserId, ResourceId (cascade), ChapterId (set null), Page, Label, CreatedAt
+LibraryReadingProgress        PK (UserId, ResourceId), Status, CurrentChapterId (set null), CurrentPage, TotalPages,
+                              PercentComplete, StartedAt, CompletedAt, UpdatedAt
+LibraryPersonalNotes          Id, UserId, ResourceId (cascade), ChapterId (set null), Page, Content (longtext)
 ```
+
+Design notes:
+
+- Books are resources, so bookmarks, progress, notes, collections, tags and syllabus mappings apply uniformly to books, files, links and notes without parallel tables.
+- Large files are never stored in MySQL. `StorageKey` is a random provider key (`yyyy/MM/{guid}` for the local provider), never derived from the uploaded file name.
+- Resource owners are `restrict`, so an account with private resources cannot be deleted until its files are removed through the API, which also deletes the blobs. Personal tracking rows (bookmarks, progress, notes, collections) cascade with their user and with their resource.
+- Topic links may reference a syllabus item of any stage (Preliminary, Written, Viva) as long as its version is published. The `restrict` behaviour keeps mapped syllabus items from being deleted silently.
+- Visibility is enforced in the application layer (`LibraryService.VisibleTo` / `ManagedBy`); see [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md).
+- No library rows are seeded. The seeder adds only the `library.manage` permission, mapped to Administrator and ContentManager.
 
 ### Planner and progress
 
@@ -446,9 +523,22 @@ Publication
 - `SyllabusVersion *-* SyllabusSourceReference` through `SyllabusVersionSource`
 - `SyllabusItem *-* SyllabusSourceReference` through `SyllabusItemSource`
 - `User 1-* TopicProgress`; each progress row targets one syllabus item
-- `Question *-* Topic/Subtopic` through versioned links
-- `ExamTemplate 1-* ExamSection 1-* ExamTemplateQuestion`
-- `ExamAttempt 1-* ExamAttemptAnswer`
+- `McqQuestion *-1 SyllabusItem` for its versioned Preliminary topic/subtopic association
+- `McqQuestion 1-* McqQuestionOption / McqQuestionSourceReference / McqQuestionTag`
+- `McqExamSet 1-* McqAttempt`
+- `McqAttempt 1-* McqAttemptQuestion 1-* McqAttemptOption`
+- `McqAttemptQuestion 1-0..1 McqAttemptAnswer`
+- `User *-* McqQuestion` through bookmarks and mistake records
+- `WrittenQuestion *-1 SyllabusItem`; questions have source, resource, and tag children
+- `WrittenQuestion 1-0..1 WrittenModelAnswer 1-* WrittenModelAnswerReference`
+- `User 1-* WrittenAnswer 1-* WrittenAnswerRevision`
+- `User *-* WrittenQuestion` through Written bookmarks
+- `User 1-* WrittenGoal / WrittenStudyNote`; notes target a Written syllabus item
+- `VivaCategory 1-* VivaQuestion 1-* VivaQuestionReference`
+- `User *-* VivaQuestion` through bookmarks and question-history rows
+- `User 1-* VivaAnswerNote 1-* VivaAnswerNoteRevision`
+- `User 1-* VivaMockSession 1-* VivaMockSessionQuestion`; each session item snapshots one Viva question
+- `User 1-0..1 VivaProfilePreparation`
 - `User 1-*` personal attempts, answers, notes, goals, progress, and revisions
 - `Resource *-* SyllabusNode/Book/Collection/CurrentAffair`
 - `Source *-*` content that uses it
@@ -461,10 +551,18 @@ Publication
 - Unique version-to-subject and source/item junction pairs
 - Topic order by syllabus subject, kind, and sort order; progress by user and item
 - Unique junction-table pairs
-- Question status/type/difficulty
-- Question-syllabus topic/subtopic
-- Exam attempt user/start/status
-- Attempt answer attempt/question
+- MCQ question status/difficulty/year and syllabus-item association
+- Question option order, source references, and tag lookup
+- MCQ exam-set status/mode
+- Attempt user/start/status and attempt-question position/question
+- Unique user/question bookmark and mistake records
+- Written-question status/type/year and source/item association
+- Written answer user/status/updated date and revision answer/number
+- Written bookmark user/question and Written goal/note ownership
+- Unique Viva category slug and category/question/status
+- Unique Viva user/question bookmark, history, and note
+- Unique Viva note revision number and mock-session question sequence
+- Viva session user/start time and session question weak-topic lookup
 - Study progress user/version/topic/subtopic
 - Revision next review date by user
 - Resource status/type/uploader
@@ -473,7 +571,7 @@ Publication
 
 ## Migration strategy
 
-Migrations are application phase deliverables. The Phase 4 `AddVersionedSyllabus` migration has been generated and reviewed; it must be applied to the configured MySQL database before the API can start. Before execution:
+Migrations are application phase deliverables. The Phase 4 `AddVersionedSyllabus`, Phase 5 `AddMcqPracticeEngine`, Phase 6 `AddWrittenPreparation`, and Phase 7 `AddVivaPreparation` migrations have been generated and reviewed; all must be applied to the configured MySQL database before the current API can start. Before execution:
 
 1. Update entity configurations and DbContext.
 2. Generate an EF Core migration.
@@ -482,4 +580,4 @@ Migrations are application phase deliverables. The Phase 4 `AddVersionedSyllabus
 5. Run integration tests.
 6. Apply only to the explicitly configured database.
 
-The exact migration command will use the established startup/Infrastructure project names.
+Use the exact `dotnet ef database update` command in the [Development Guide](DEVELOPMENT_GUIDE.md). Do not apply migrations until the connection string points to the intended disposable or managed MySQL database.

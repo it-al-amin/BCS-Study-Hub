@@ -63,7 +63,7 @@ dotnet tool update --global dotnet-ef --version 10.0.12
 dotnet tool install --global dotnet-ef --version 10.0.12
 ```
 
-The `InitialIdentityAndAudit` and `AddVersionedSyllabus` migrations are included. For a first install, apply all included migrations with the `database update` command below. Do not regenerate either existing migration. To inspect the migration list:
+The `InitialIdentityAndAudit`, `AddVersionedSyllabus`, `AddMcqPracticeEngine`, `AddWrittenPreparation`, `AddVivaPreparation`, and `AddDigitalLibrary` migrations are included. For a first install, apply all included migrations with the `database update` command below. Do not regenerate existing migrations. To inspect the migration list:
 
 ```powershell
 dotnet ef migrations list --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj
@@ -73,6 +73,30 @@ The Phase 4 syllabus migration was generated with:
 
 ```powershell
 dotnet ef migrations add AddVersionedSyllabus --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
+```
+
+The Phase 5 MCQ migration was generated with:
+
+```powershell
+dotnet ef migrations add AddMcqPracticeEngine --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
+```
+
+The Phase 6 Written migration was generated with:
+
+```powershell
+dotnet ef migrations add AddWrittenPreparation --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
+```
+
+The Phase 7 Viva migration was generated with:
+
+```powershell
+dotnet ef migrations add AddVivaPreparation --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
+```
+
+The Phase 8 digital library migration was generated with:
+
+```powershell
+dotnet ef migrations add AddDigitalLibrary --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
 ```
 
 For later model changes, add a new migration with a unique name and review its generated schema before applying it:
@@ -87,7 +111,7 @@ Apply the committed initial migration to the configured MySQL database:
 dotnet ef database update --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj
 ```
 
-The first migration creates Identity, role-permission, and audit tables. The Phase 4 migration adds stages, syllabus versions, subjects, papers, the topic/subtopic item hierarchy, source references, and user-owned topic progress. The startup seeder adds the BPSC-published subject/marks outlines and their citations after migrations have run. It does not seed unverified detailed topics.
+The first migration creates Identity, role-permission, and audit tables. The Phase 4 migration adds stages, syllabus versions, subjects, papers, the topic/subtopic item hierarchy, source references, and user-owned topic progress. The Phase 5 migration adds sourced Preliminary MCQs, dynamic practice-set rules, attempts, answer snapshots, bookmarks, and mistakes. The Phase 6 migration adds sourced Written questions/model answers, user-owned answer revisions, bookmarks, notes, goals, and reports. The Phase 7 migration adds editable Viva categories/questions/references, private notes/history/bookmarks/profile preparation, and ordered mock sessions. No questions, answers, or unverified syllabus topics are seeded. The startup seeder adds only BPSC-published syllabus subject/marks outlines and editable Viva category labels; it does not seed official Viva questions or topics.
 
 ## Run and verify
 
@@ -124,6 +148,8 @@ Vite proxies `/api` to the backend's Development HTTP URL (`http://localhost:521
 - Public registration assigns only the Candidate role.
 - The database must be migrated before the API starts; startup then seeds baseline roles/permissions and the explicitly source-verified syllabus outline.
 - Only accounts with the `syllabus.manage` permission can access the syllabus admin API. Published versions are immutable; use a new draft for revisions.
+- Library files are stored by the local provider under `LibraryStorage:RootPath` (default `App_Data/library-files` relative to the API content root; git-ignored). In deployment, point it at a persistent volume outside the web root and include it in backups, because MySQL holds only file metadata. `LibraryStorage:MaxFileSizeBytes` (default 50 MB, at most 100 MB) and `LibraryStorage:UserQuotaBytes` (default 2 GB) are validated at startup.
+- Only accounts with `library.manage` can manage the shared library. Learners' private library resources are not readable by administrators.
 
 ## Validation policy
 

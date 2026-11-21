@@ -1,7 +1,12 @@
 using System.Security.Claims;
 using System.Text;
 using BCSStudyHub.Api.Middleware;
+using System.Threading.RateLimiting;
+using BCSStudyHub.Api.Controllers;
 using BCSStudyHub.Application.Authorization;
+using BCSStudyHub.Application.Library;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.RateLimiting;
 using BCSStudyHub.Infrastructure;
 using BCSStudyHub.Infrastructure.Configuration;
 using BCSStudyHub.Infrastructure.Persistence;
@@ -51,6 +56,31 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("permission", PermissionCodes.ContentManage));
     options.AddPolicy(PermissionCodes.SyllabusManage, policy =>
         policy.RequireClaim("permission", PermissionCodes.SyllabusManage));
+    options.AddPolicy(PermissionCodes.McqManage, policy =>
+        policy.RequireClaim("permission", PermissionCodes.McqManage));
+    options.AddPolicy(PermissionCodes.WrittenManage, policy =>
+        policy.RequireClaim("permission", PermissionCodes.WrittenManage));
+    options.AddPolicy(PermissionCodes.VivaManage, policy =>
+        policy.RequireClaim("permission", PermissionCodes.VivaManage));
+    options.AddPolicy(PermissionCodes.LibraryManage, policy =>
+        policy.RequireClaim("permission", PermissionCodes.LibraryManage));
+});
+
+// Upload endpoints accept multipart bodies up to the hard ceiling; the configured per-file limit is enforced by the service.
+builder.Services.Configure<FormOptions>(options =>
+    options.MultipartBodyLengthLimit = LibraryFileRules.AbsoluteMaxUploadBytes);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy(LibraryRateLimits.UploadPolicy, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0,
+            }));
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -85,6 +115,7 @@ app.UseHttpsRedirection();
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions

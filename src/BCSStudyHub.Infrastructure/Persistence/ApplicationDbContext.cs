@@ -31,6 +31,52 @@ public sealed class ApplicationDbContext(
     public DbSet<SyllabusVersionSource> SyllabusVersionSources => Set<SyllabusVersionSource>();
     public DbSet<SyllabusItemSource> SyllabusItemSources => Set<SyllabusItemSource>();
     public DbSet<TopicProgress> TopicProgress => Set<TopicProgress>();
+    public DbSet<McqQuestion> McqQuestions => Set<McqQuestion>();
+    public DbSet<McqQuestionOption> McqQuestionOptions => Set<McqQuestionOption>();
+    public DbSet<McqQuestionSourceReference> McqQuestionSourceReferences => Set<McqQuestionSourceReference>();
+    public DbSet<McqQuestionTag> McqQuestionTags => Set<McqQuestionTag>();
+    public DbSet<McqExamSet> McqExamSets => Set<McqExamSet>();
+    public DbSet<McqAttempt> McqAttempts => Set<McqAttempt>();
+    public DbSet<McqAttemptQuestion> McqAttemptQuestions => Set<McqAttemptQuestion>();
+    public DbSet<McqAttemptOption> McqAttemptOptions => Set<McqAttemptOption>();
+    public DbSet<McqAttemptAnswer> McqAttemptAnswers => Set<McqAttemptAnswer>();
+    public DbSet<McqBookmark> McqBookmarks => Set<McqBookmark>();
+    public DbSet<McqMistake> McqMistakes => Set<McqMistake>();
+    public DbSet<WrittenQuestion> WrittenQuestions => Set<WrittenQuestion>();
+    public DbSet<WrittenQuestionSourceReference> WrittenQuestionSourceReferences => Set<WrittenQuestionSourceReference>();
+    public DbSet<WrittenQuestionResource> WrittenQuestionResources => Set<WrittenQuestionResource>();
+    public DbSet<WrittenQuestionTag> WrittenQuestionTags => Set<WrittenQuestionTag>();
+    public DbSet<WrittenModelAnswer> WrittenModelAnswers => Set<WrittenModelAnswer>();
+    public DbSet<WrittenModelAnswerReference> WrittenModelAnswerReferences => Set<WrittenModelAnswerReference>();
+    public DbSet<WrittenAnswer> WrittenAnswers => Set<WrittenAnswer>();
+    public DbSet<WrittenAnswerRevision> WrittenAnswerRevisions => Set<WrittenAnswerRevision>();
+    public DbSet<WrittenBookmark> WrittenBookmarks => Set<WrittenBookmark>();
+    public DbSet<WrittenGoal> WrittenGoals => Set<WrittenGoal>();
+    public DbSet<WrittenStudyNote> WrittenStudyNotes => Set<WrittenStudyNote>();
+    public DbSet<VivaCategory> VivaCategories => Set<VivaCategory>();
+    public DbSet<VivaQuestion> VivaQuestions => Set<VivaQuestion>();
+    public DbSet<VivaQuestionReference> VivaQuestionReferences => Set<VivaQuestionReference>();
+    public DbSet<VivaBookmark> VivaBookmarks => Set<VivaBookmark>();
+    public DbSet<VivaQuestionHistory> VivaQuestionHistory => Set<VivaQuestionHistory>();
+    public DbSet<VivaAnswerNote> VivaAnswerNotes => Set<VivaAnswerNote>();
+    public DbSet<VivaAnswerNoteRevision> VivaAnswerNoteRevisions => Set<VivaAnswerNoteRevision>();
+    public DbSet<VivaMockSession> VivaMockSessions => Set<VivaMockSession>();
+    public DbSet<VivaMockSessionQuestion> VivaMockSessionQuestions => Set<VivaMockSessionQuestion>();
+    public DbSet<VivaProfilePreparation> VivaProfilePreparations => Set<VivaProfilePreparation>();
+    public DbSet<LibraryResource> LibraryResources => Set<LibraryResource>();
+    public DbSet<LibraryBookDetails> LibraryBookDetails => Set<LibraryBookDetails>();
+    public DbSet<LibraryFile> LibraryFiles => Set<LibraryFile>();
+    public DbSet<LibraryBookChapter> LibraryBookChapters => Set<LibraryBookChapter>();
+    public DbSet<LibraryChapterTopic> LibraryChapterTopics => Set<LibraryChapterTopic>();
+    public DbSet<LibraryChapterResource> LibraryChapterResources => Set<LibraryChapterResource>();
+    public DbSet<LibraryResourceSubject> LibraryResourceSubjects => Set<LibraryResourceSubject>();
+    public DbSet<LibraryResourceTopic> LibraryResourceTopics => Set<LibraryResourceTopic>();
+    public DbSet<LibraryResourceTag> LibraryResourceTags => Set<LibraryResourceTag>();
+    public DbSet<LibraryCollection> LibraryCollections => Set<LibraryCollection>();
+    public DbSet<LibraryCollectionItem> LibraryCollectionItems => Set<LibraryCollectionItem>();
+    public DbSet<LibraryBookmark> LibraryBookmarks => Set<LibraryBookmark>();
+    public DbSet<LibraryReadingProgress> LibraryReadingProgress => Set<LibraryReadingProgress>();
+    public DbSet<LibraryPersonalNote> LibraryPersonalNotes => Set<LibraryPersonalNote>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -99,6 +145,52 @@ public sealed class ApplicationDbContext(
         builder.ApplyConfiguration(new SyllabusVersionSourceConfiguration());
         builder.ApplyConfiguration(new SyllabusItemSourceConfiguration());
         builder.ApplyConfiguration(new TopicProgressConfiguration());
+        builder.ApplyConfiguration(new McqQuestionConfiguration());
+        builder.ApplyConfiguration(new McqQuestionOptionConfiguration());
+        builder.ApplyConfiguration(new McqQuestionSourceReferenceConfiguration());
+        builder.ApplyConfiguration(new McqQuestionTagConfiguration());
+        builder.ApplyConfiguration(new McqExamSetConfiguration());
+        builder.ApplyConfiguration(new McqAttemptConfiguration());
+        builder.ApplyConfiguration(new McqAttemptQuestionConfiguration());
+        builder.ApplyConfiguration(new McqAttemptOptionConfiguration());
+        builder.ApplyConfiguration(new McqAttemptAnswerConfiguration());
+        builder.ApplyConfiguration(new McqBookmarkConfiguration());
+        builder.ApplyConfiguration(new McqMistakeConfiguration());
+        builder.ApplyConfiguration(new WrittenQuestionConfiguration());
+        builder.ApplyConfiguration(new WrittenQuestionSourceReferenceConfiguration());
+        builder.ApplyConfiguration(new WrittenQuestionResourceConfiguration());
+        builder.ApplyConfiguration(new WrittenQuestionTagConfiguration());
+        builder.ApplyConfiguration(new WrittenModelAnswerConfiguration());
+        builder.ApplyConfiguration(new WrittenModelAnswerReferenceConfiguration());
+        builder.ApplyConfiguration(new WrittenAnswerConfiguration());
+        builder.ApplyConfiguration(new WrittenAnswerRevisionConfiguration());
+        builder.ApplyConfiguration(new WrittenBookmarkConfiguration());
+        builder.ApplyConfiguration(new WrittenGoalConfiguration());
+        builder.ApplyConfiguration(new WrittenStudyNoteConfiguration());
+        builder.ApplyConfiguration(new VivaCategoryConfiguration());
+        builder.ApplyConfiguration(new VivaQuestionConfiguration());
+        builder.ApplyConfiguration(new VivaQuestionReferenceConfiguration());
+        builder.ApplyConfiguration(new VivaBookmarkConfiguration());
+        builder.ApplyConfiguration(new VivaQuestionHistoryConfiguration());
+        builder.ApplyConfiguration(new VivaAnswerNoteConfiguration());
+        builder.ApplyConfiguration(new VivaAnswerNoteRevisionConfiguration());
+        builder.ApplyConfiguration(new VivaMockSessionConfiguration());
+        builder.ApplyConfiguration(new VivaMockSessionQuestionConfiguration());
+        builder.ApplyConfiguration(new VivaProfilePreparationConfiguration());
+        builder.ApplyConfiguration(new LibraryResourceConfiguration());
+        builder.ApplyConfiguration(new LibraryBookDetailsConfiguration());
+        builder.ApplyConfiguration(new LibraryFileConfiguration());
+        builder.ApplyConfiguration(new LibraryBookChapterConfiguration());
+        builder.ApplyConfiguration(new LibraryChapterTopicConfiguration());
+        builder.ApplyConfiguration(new LibraryChapterResourceConfiguration());
+        builder.ApplyConfiguration(new LibraryResourceSubjectConfiguration());
+        builder.ApplyConfiguration(new LibraryResourceTopicConfiguration());
+        builder.ApplyConfiguration(new LibraryResourceTagConfiguration());
+        builder.ApplyConfiguration(new LibraryCollectionConfiguration());
+        builder.ApplyConfiguration(new LibraryCollectionItemConfiguration());
+        builder.ApplyConfiguration(new LibraryBookmarkConfiguration());
+        builder.ApplyConfiguration(new LibraryReadingProgressConfiguration());
+        builder.ApplyConfiguration(new LibraryPersonalNoteConfiguration());
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -126,6 +218,152 @@ public sealed class ApplicationDbContext(
                 entry.Entity.UpdatedAt = now;
             }
             else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<McqQuestion>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<McqExamSet>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<WrittenQuestion>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<WrittenGoal>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<WrittenStudyNote>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<VivaCategory>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<VivaQuestion>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<VivaProfilePreparation>())
+        {
+            if (entry.State is EntityState.Added or EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<LibraryResource>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<LibraryCollection>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<LibraryPersonalNote>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<LibraryReadingProgress>())
+        {
+            if (entry.State is EntityState.Added or EntityState.Modified)
             {
                 entry.Entity.UpdatedAt = now;
             }

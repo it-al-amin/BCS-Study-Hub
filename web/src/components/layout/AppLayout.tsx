@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
-  BookMarked, BookOpen, CalendarDays, ChartNoAxesCombined, ChevronRight,
+  Bookmark, BookMarked, BookOpen, CalendarDays, ChartNoAxesCombined, ChevronRight,
   CircleCheck, LayoutDashboard, Library, Map, Menu, Mic2, Moon, Network,
-  Newspaper, PenTool, RotateCcw, Search, Settings, Sun, X, LogOut,
+  FileText, Newspaper, PenTool, RotateCcw, Search, Settings, Sun, X, LogOut,
 } from 'lucide-react'
 import { useTheme } from '../../app/ThemeProvider'
 import { useAuth } from '../../app/useAuth'
 import { primaryNavigation, studyNavigation } from './navigation'
 import { Link } from 'react-router-dom'
 
-const icons = { LayoutDashboard, Map, Network, BookOpen, CircleCheck, PenTool, Mic2, CalendarDays, RotateCcw, ChartNoAxesCombined, Library, BookMarked, Newspaper }
+const icons = { LayoutDashboard, Map, Network, BookOpen, CircleCheck, PenTool, Mic2, CalendarDays, RotateCcw, ChartNoAxesCombined, Library, BookMarked, Newspaper, Bookmark, FileText }
 
 function NavigationGroup({ items, onNavigate }: { items: readonly { label: string; href: string; icon: keyof typeof icons }[]; onNavigate?: () => void }) {
   return (
@@ -56,9 +56,9 @@ export function AppLayout() {
         <div className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Study tools</div>
         <NavigationGroup items={studyNavigation} onNavigate={() => setMobileOpen(false)} />
       </div>
-      {(user?.permissions.includes('admin.access') || user?.permissions.includes('syllabus.manage')) && (
+      {(user?.permissions.includes('admin.access') || user?.permissions.includes('syllabus.manage') || user?.permissions.includes('mcq.manage') || user?.permissions.includes('written.manage')) && (
         <div className="border-t border-slate-200 p-3 dark:border-slate-800">
-          <NavLink to={user.permissions.includes('admin.access') ? '/admin' : '/admin/syllabus'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
+          <NavLink to={user.permissions.includes('admin.access') ? '/admin' : user.permissions.includes('written.manage') ? '/admin/written' : user.permissions.includes('mcq.manage') ? '/admin/mcq' : '/admin/syllabus'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
             <Settings className="h-4 w-4" /> Administration
           </NavLink>
         </div>

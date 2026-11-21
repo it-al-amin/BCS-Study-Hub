@@ -9,7 +9,7 @@ export function RequirePermission({ permission, children }: { permission: string
   if (!user.permissions.includes(permission)) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-        Your account does not have permission to manage syllabus content.
+        Your account does not have permission to open this area.
       </div>
     )
   }

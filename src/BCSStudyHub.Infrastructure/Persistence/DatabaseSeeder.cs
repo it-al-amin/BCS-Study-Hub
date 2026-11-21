@@ -45,6 +45,10 @@ public sealed class DatabaseSeeder(
                 PermissionCodes.SyllabusRead,
                 PermissionCodes.ContentManage,
                 PermissionCodes.SyllabusManage,
+                PermissionCodes.McqManage,
+                PermissionCodes.WrittenManage,
+                PermissionCodes.VivaManage,
+                PermissionCodes.LibraryManage,
             ],
             ["Administrator"] = permissions.Keys.ToArray(),
         };
@@ -83,6 +87,43 @@ public sealed class DatabaseSeeder(
                         PermissionId = permission.Id,
                     });
                 }
+            }
+        }
+
+        var vivaCategories = new (string Slug, string Name)[]
+        {
+            ("personal-profile", "Personal profile"),
+            ("academic-background", "Academic background"),
+            ("university-and-subject", "University and subject"),
+            ("bangladesh-affairs", "Bangladesh affairs"),
+            ("constitution", "Constitution"),
+            ("government-and-administration", "Government and administration"),
+            ("international-affairs", "International affairs"),
+            ("current-affairs", "Current affairs"),
+            ("geography", "Geography"),
+            ("economy", "Economy"),
+            ("science-and-ict", "Science and ICT"),
+            ("ethics", "Ethics"),
+            ("public-administration", "Public administration"),
+            ("cadre-specific-research", "Cadre-specific research"),
+            ("professional-experience", "Professional experience"),
+            ("situational-questions", "Situational questions"),
+            ("communication-and-reasoning", "Communication and reasoning"),
+        };
+        for (var index = 0; index < vivaCategories.Length; index++)
+        {
+            var (slug, name) = vivaCategories[index];
+            var exists = await dbContext.VivaCategories.AnyAsync(category => category.Slug == slug, cancellationToken);
+            if (!exists)
+            {
+                dbContext.VivaCategories.Add(new VivaCategory
+                {
+                    Id = Guid.NewGuid(),
+                    Slug = slug,
+                    Name = name,
+                    DisplayOrder = index + 1,
+                    IsActive = true,
+                });
             }
         }
 

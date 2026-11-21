@@ -43,14 +43,30 @@ export class ApiClient {
     await this.request<void>(path, { method: 'DELETE' }, token)
   }
 
+  /** Sends multipart form data; the browser sets the boundary header. */
+  protected async postForm<T>(path: string, form: FormData, token?: string): Promise<T> {
+    return this.request<T>(path, { method: 'POST', body: form }, token)
+  }
+
+  /** Downloads an authenticated binary response, e.g. a protected library file. */
+  protected async getBlob(path: string, token?: string): Promise<Blob> {
+    const response = await this.send(path, { method: 'GET' }, token, '*/*')
+    return response.blob()
+  }
+
   private async request<T>(path: string, init: RequestInit, token?: string): Promise<T> {
+    const response = await this.send(path, init, token, 'application/json')
+    if (response.status === 204) return undefined as T
+    return response.json() as Promise<T>
+  }
+
+  private async send(path: string, init: RequestInit, token: string | undefined, accept: string): Promise<Response> {
     const headers = new Headers(init.headers)
-    headers.set('Accept', 'application/json')
-    if (init.body !== undefined) headers.set('Content-Type', 'application/json')
+    headers.set('Accept', accept)
+    if (typeof init.body === 'string') headers.set('Content-Type', 'application/json')
     if (token) headers.set('Authorization', `Bearer ${token}`)
 
     const response = await fetch(`${this.baseUrl}${path}`, { ...init, headers })
-    if (response.status === 204) return undefined as T
     if (!response.ok) {
       const body = await response.text()
       let detail = `API request failed (${response.status})`
@@ -65,6 +81,6 @@ export class ApiClient {
       throw new ApiError(detail, response.status)
     }
 
-    return response.json() as Promise<T>
+    return response
   }
 }

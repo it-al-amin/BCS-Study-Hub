@@ -75,6 +75,8 @@ The BPSC page additionally says candidates opting for both general and technical
 
 BPSC states that the oral examination is 200 marks and the pass mark is 50%. The source page does not provide a topic-by-topic Viva syllabus. The published version therefore has no subject/topic entries and explicitly says this in its summary.
 
+The Viva application's editable categories are navigation labels provided in the project requirements. They are not sourced or represented as a BPSC-published Viva topic list. No question content is seeded; any future official claim requires its own reference and verification.
+
 ## Updating source status
 
 When a detailed official PDF is reviewed and its applicability/date are confirmed, create a new draft version, attach the precise official source, add topics with item-level references, mark only verified items as `Verified`, and publish after review. Do not edit an already published version; archive it and publish a new version instead.

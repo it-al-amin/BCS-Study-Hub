@@ -90,48 +90,51 @@ The hierarchy is `ExamStage -> SyllabusVersion -> SyllabusSubject -> Paper (opti
 
 ### MCQ system
 
-- `Question`: polymorphic stage/paper/topic associations, question type, prompt, explanation, difficulty, status
-- `McqQuestion`: option or discriminator entity if a dedicated subtype is required
-- `McqOption`: question, text, correctness, sequence, explanation
-- `QuestionTag`
-- `QuestionAttempt`: user, question, selected option, score, timing, timestamp
-- `Exam`
-- `ExamSection`
-- `ExamQuestion`
-- `ExamAttempt`
-- `ExamAttemptAnswer`
+- `McqQuestion`: Preliminary question, syllabus item, type, difficulty, status, exam metadata, optional HTTPS image reference
+- `McqQuestionOption`: ordered choice and answer key
+- `McqQuestionSourceReference`: citation and verification status
+- `McqQuestionTag`
+- `McqExamSet`: version, practice mode, filters, count, duration, and configurable scoring
+- `McqAttempt`: user-owned attempt and immutable scoring/timing snapshot
+- `McqAttemptQuestion` and `McqAttemptOption`: question, option, topic, and source snapshots
+- `McqAttemptAnswer`: selected option IDs and review state
+- `McqBookmark` and `McqMistake`: user-owned question tracking
 
-Randomized questions are selected at attempt creation and stored against the attempt so later question changes cannot alter the submitted result.
+Only verified questions mapped to a verified topic in a published Preliminary syllabus version can be published. Questions are randomized when an attempt starts and stored against that attempt so later edits cannot change submitted history. The server validates selections and computes scores from the answer snapshot; multiple-answer items use exact-set matching. Practice and mock-exam scoring/timing are configurable, not inferred from BPSC rules.
 
 ### Written system
 
-- `WrittenQuestion`: prompt, format, stage/paper/topics, marks, difficulty, source
-- `WrittenAnswer`: user, question, submitted content, word/character count, status
-- `AnswerEvaluation`: answer, personal score or rubric, feedback
-- `ModelAnswer`
-- `ModelAnswerReference`
+- `WrittenQuestion`: descriptive/analytical/essay/composition/translation prompt, versioned Written topic, exam metadata, optional marks and guidance
+- `WrittenQuestionSourceReference`, `WrittenQuestionResource`, and `WrittenQuestionTag`
+- `WrittenModelAnswer` and verified `WrittenModelAnswerReference` records with a publication lifecycle
+- `WrittenAnswer`: user-owned private draft/submission, server-calculated word count, self-assessment, and self-reported time
+- `WrittenAnswerRevision`: immutable draft/submission/revision snapshots
+- `WrittenBookmark`, `WrittenGoal`, and `WrittenStudyNote`
+
+Question publication requires a verified source and a verified topic in a published Written syllabus version. Model answers publish separately with verified references. Personal assessments are not official grades and no automated or AI evaluation is claimed. Submitted versions are preserved in answer revision history.
 
 ### Viva system
 
-- `VivaQuestion`: prompt, category, expected topics, difficulty, status
-- `MockVivaSession`: user, planned/completed times, notes, overall result
-- `VivaSessionAnswer`: session, question, answer summary/notes, timing, evaluation
-- `CadreResearchProfile`: optional cadre-specific questions and resources
+- `VivaCategory` and `VivaQuestion`: editable categories, editor-defined topic labels, lifecycle, exam references, and optional source/suggested-answer references
+- `VivaAnswerNote` and immutable `VivaAnswerNoteRevision`: private per-user notes and revisions
+- `VivaBookmark` and `VivaQuestionHistory`: owner-scoped question tracking
+- `VivaMockSession` and ordered `VivaMockSessionQuestion`: user-owned sessions with question/category snapshots, answer notes, revision flags, self-ratings, and feedback
+- `VivaProfilePreparation`: private profile prompts for academic, personal, experience, and cadre preparation
+
+The initial category labels are application taxonomy from the project request, not an official BPSC topic list. No Viva questions are seeded. Reference verification is entered by a content editor; mock ratings and weak-topic flags are personal reflection only. Voice and AI services are not implemented.
 
 ### Digital library
 
-- `Book`: title, authors, publisher, edition, publication year, description, cover resource
-- `BookChapter`: book, title, sequence, resource/topic associations
-- `Resource`: type, title, description, original name, MIME type, size, storage key, status
-- `ResourceFile`: resource, provider key, checksum, size, content type
-- `ExternalLink`: URL, title, source attribution, status
-- `ResourceCollection`
-- `ResourceCollectionItem`
-- `ResourceBookmark`
-- `ResourceReadingProgress`: user, resource, position, completion, total pages if available
-- `ResourcePersonalNote`
-- `ResourceTopicLink`
-- `ResourceSource`
+Implemented in Phase 8. Books, files, external links and study notes share one `LibraryResource` aggregate, so personal tracking works the same for every kind:
+
+- `LibraryResource`: kind, category, private/shared visibility, draft/published/archived status, title, description, authors, source name/type, website, URL, publication date, rights basis/note, note content
+- `LibraryBookDetails`: publisher, edition, year, ISBN, pages, language (books only)
+- `LibraryFile`: primary file or book cover; sanitised name, server-detected type, size, SHA-256, provider and storage key
+- `LibraryBookChapter` with chapter topics and chapter-wise linked resources
+- `LibraryResourceSubject`, `LibraryResourceTopic`, `LibraryResourceTag`
+- Owner-scoped `LibraryCollection`/`LibraryCollectionItem`, `LibraryBookmark` (resource/chapter/page), `LibraryReadingProgress`, `LibraryPersonalNote`
+
+Private resources belong to one learner. Shared resources are curated by `library.manage` holders and published to all signed-in learners. Copyright, access-control and file-security decisions are recorded in [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md).
 
 Large files remain outside MySQL. Metadata and checksums are relational records.
 
@@ -292,6 +295,13 @@ Implement local and cloud provider adapters behind that interface. The API valid
 
 Store original name, storage key, MIME type, size, checksum, privacy level, status, uploader, and timestamps in MySQL. Never use database blobs for normal uploaded files.
 
+Phase 8 status:
+
+- `IFileStorage` (Application) defines `CreateKey`, `SaveAsync`, `OpenReadAsync` and `DeleteAsync`. `LocalFileStorage` (Infrastructure) is the only provider so far. It writes through a temporary file and an atomic move under `LibraryStorage:RootPath`, and rejects any key outside the generated pattern or the root.
+- `LibraryFileRules` (Application, pure and unit-tested) does extension allowlisting, content-signature and Office-structure verification, macro rejection, UTF-8 text checks, and file-name sanitisation.
+- The configured size limit, per-user quota, and the `library-upload` rate-limit policy are enforced at the API. There are no signed URLs: files stream through authorised endpoints because the bearer token lives in memory, and the frontend turns responses into short-lived object URLs.
+- Malware scanning and cloud providers are not implemented. Add them behind the same interface.
+
 ## 10. API conventions
 
 - Pagination: `pageNumber`, `pageSize`
@@ -325,41 +335,33 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - Responsive learner explorer and permission-protected administration
 - Import only content verified against official sources
 
-### Phase 5 - Study content and personal notes
+### Phase 5 - Preliminary MCQ preparation and practice
 
-- Notes and personal notes
-- Tags/categories and content revision workflow
+- Source-attributed question bank and permission-protected authoring
+- Topic/subject/mixed practice and configurable mock-exam sets
+- Server-validated answers, timed attempts, snapshots, review, bookmarks, mistakes, and analytics
 
-### Phase 6 - Digital library
+### Phase 6 - Written preparation
 
-- Book/resource metadata
+- Versioned Written syllabus exploration and source-aware descriptive question bank
+- Model answers/references and admin mapping
+- User-owned answer drafts, submission/revision history, word/time tracking, bookmarks, and self-assessment
+- No automatic AI evaluation unless a real service is integrated
+
+### Phase 7 - Viva preparation
+
+- Editable category taxonomy and permission-protected sourced question management
+- Category/topic/search browsing, bookmarks, private notes/revisions, and question history
+- Ordered mock sessions with answer notes, completion, self-evaluation, feedback, and revision-topic reporting
+- Private profile preparation; no voice or AI evaluation unless a real service is integrated
+
+### Phase 8 - Digital library (implemented)
+
+- Book/resource metadata, chapters, and rights basis
 - Storage abstraction and secure upload/download
-- Collections and topic associations
+- Collections, bookmarks, reading progress, personal notes, and subject/topic/chapter associations
 
-### Phase 7 - MCQ practice
-
-- Question and option CRUD
-- Topic associations
-- Practice sessions
-- Attempt history
-- Explanations and weak-topic calculations
-
-### Phase 8 - Mock exams
-
-- Exam templates
-- Sections and question selection
-- Timed attempts
-- Randomization
-- Review and score analytics
-
-### Phase 9 - Written and viva
-
-- Written questions and answers
-- Personal evaluation and model answers
-- Viva questions and mock sessions
-- Profile and cadre research
-
-### Phase 10 - Planner, revision, and dashboard
+### Phase 9 - Planner, revision, and dashboard
 
 - Daily/weekly goals
 - Study sessions
@@ -367,14 +369,14 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - Progress dashboard
 - Real performance trends
 
-### Phase 11 - Current affairs and government resources
+### Phase 10 - Current affairs and government resources
 
 - Curated content workflow
 - Official-source metadata
 - Date/category/tag filtering
 - Resource and topic associations
 
-### Phase 12 - Hardening and delivery
+### Phase 11 - Hardening and delivery
 
 - Docker Compose
 - CI/CD
@@ -390,7 +392,7 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - MySQL full-text behavior and search requirements differ by deployment: start with relational filtering and add the smallest justified search layer later.
 - Over-normalization makes routine screens complex: keep core relational structure normalized and provide read-optimized application DTOs.
 - Hardcoded roles or stage names fragment authorization: use permission policies and database-managed taxonomy.
-- A "MCQ" or "written" question hierarchy added too late may require redesign: use a reusable question base plus explicit type-specific content.
+- MCQ and Written questions have distinct workflows and answer semantics; share source/syllabus conventions without forcing them into one ambiguous entity.
 - Large assessments can generate many child rows: use bounded transactions and explicit attempt snapshot tables.
 - Content provenance and copyright: require attribution, publication metadata, and review status; do not import at scale without permission.
 
@@ -406,10 +408,11 @@ Store original name, storage key, MIME type, size, checksum, privacy level, stat
 - [x] Add permission-protected draft/publish administration and published tree/search APIs
 - [x] Add frontend API integration, sign-in for progress/admin, and responsive syllabus explorer
 - [x] Build and test the first syllabus endpoint/UI flow
-- [ ] Add storage abstraction and one provider
-- [ ] Expand content modules in approved phases
+- [x] Add source-verified Preliminary MCQ questions, configurable sets, server-side attempts/scoring, learner/admin UI, and focused tests
+- [x] Implement the Written preparation module (Phase 6), including private drafts/revisions and self-assessment
+- [x] Implement the Viva preparation module (Phase 7), including editable categories, sourced questions, notes, ordered mock sessions, profile preparation, and focused validation tests
 
-The Phase 4 syllabus implementation publishes only BPSC-verified stage/subject/marks outlines. Detailed topic lists remain clearly marked as not yet verified; see [SYLLABUS_SOURCES.md](SYLLABUS_SOURCES.md).
+The Phase 4 syllabus implementation publishes only BPSC-verified stage/subject/marks outlines. Detailed topic lists remain clearly marked as not yet verified; see [SYLLABUS_SOURCES.md](SYLLABUS_SOURCES.md). Phase 5 includes no seeded MCQs, and Phase 7 includes no seeded Viva questions. Editorially authored questions and their source references must be reviewed before publication; Viva categories are not presented as an official topic list.
 
 ## 14. Decisions requiring later approval
 
