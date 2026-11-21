@@ -19,6 +19,7 @@ public enum AuthFailure
     InvalidCredentials,
     EmailAlreadyRegistered,
     RegistrationRejected,
+    RegistrationClosed,
 }
 
 public sealed record AuthOperationResult(AuthResponse? Response, AuthFailure Failure)

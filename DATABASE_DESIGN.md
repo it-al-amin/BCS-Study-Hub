@@ -444,74 +444,98 @@ Design notes:
 - Visibility is enforced in the application layer (`LibraryService.VisibleTo` / `ManagedBy`); see [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md).
 - No library rows are seeded. The seeder adds only the `library.manage` permission, mapped to Administrator and ContentManager.
 
-### Planner and progress
+### Planner, revision, and progress (implemented in `AddStudyPlannerAndRevision`)
 
 ```text
-StudySession
-  - Id
-  - UserId
-  - SyllabusVersionId
-  - TargetType
-  - TargetId
-  - StartedAt
-  - EndedAt
-  - DurationSeconds
-  - Note
+StudyGoals          Id, UserId, Period: Daily | Weekly | Monthly, PeriodStart (date; Monday / 1st for weekly / monthly), Title,
+                    Metric: StudyMinutes | CompletedTasks | CompletedTopics | McqQuestionsAnswered | WrittenSubmissions | VivaSessions | RevisionReviews,
+                    TargetValue, SubjectId? (set null), Stage?, Notes
+StudySchedules      Id, UserId, Title, DaysOfWeek (bit flags, Sunday = 1 … Saturday = 64), StartTime?, PlannedMinutes, Priority,
+                    SubjectId?, SyllabusItemId?, Stage?, StartDate, EndDate?, IsActive
+StudyTasks          Id, UserId, Title, Description, Priority: Low | Medium | High | Urgent, Status: Planned | InProgress | Completed | Skipped,
+                    ScheduledDate, StartTime?, PlannedMinutes, ActualMinutes, SubjectId?, SyllabusItemId?, Stage?, ScheduleId? (set null), CompletedAt
+                    UX (ScheduleId, ScheduledDate) so generation is idempotent
+StudySessions       Id, UserId, StartedAt, EndedAt? (null while a timer runs), DurationMinutes, Activity, TaskId? (set null),
+                    SubjectId?, SyllabusItemId?, Stage?, Notes
+PlannerSettings     PK UserId; RevisionIntervalsJson, AgainStep, Hard/Good/EasyStepDelta, RetireAfterStep?, DailyRevisionLimit,
+                    StreakMinimumMinutes, WeakTopicAccuracyPercent, WeakTopicMinimumAnswers, AutoQueueMistakes
+RevisionItems       Id, UserId, SourceType (Topic | McqQuestion | WrittenQuestion | VivaQuestion | Mistake | WrittenNote | LibraryNote | VivaNote | Custom),
+                    SourceId?, Title (snapshot), SyllabusItemId?, Reason, Status: Active | Suspended | Retired, Step, IntervalDays,
+                    DueOn (date), ReviewCount, LapseCount, LastOutcome, LastReviewedAt; IX (UserId, Status, DueOn)
+RevisionLogs        Id, UserId, RevisionItemId? (set null), SourceType (adds CurrentAffairs), SourceId, Title, SyllabusItemId,
+                    Outcome, StepBefore, StepAfter, IntervalDays, ReviewedAt (immutable history)
+MistakeEntries      Id, UserId, SourceType: Mcq | Written | Viva | Other, QuestionId?, QuestionText, YourAnswer, CorrectAnswerReference,
+                    Explanation, Category (Concept, Recall, Calculation, Misreading, Careless, TimePressure, Language, Other),
+                    Status: Open | Resolved, SyllabusItemId?, ReviewOn, ResolvedAt
 
-StudyGoal
-  - Id
-  - UserId
-  - PeriodType
-  - PeriodStart
-  - TargetJson
-  - Status
-
-TopicProgress
-  - Id
-  - UserId
-  - SyllabusVersionId
-  - TopicId nullable
-  - SubtopicId nullable
-  - Status
-  - CompletionPercentage
-  - LastStudiedAt
-  - TotalStudySeconds
-
-RevisionItem
-  - Id
-  - UserId
-  - TargetType
-  - TargetId
-  - Ease
-  - IntervalDays
-  - NextReviewAt
-  - LastReviewedAt
-
-Bookmark
-MistakeEntry
+Changed tables:
+TopicProgress            + Mastery (1–5, nullable), MasteryUpdatedAt
+CurrentAffairsRevisions  + Step (existing rows start at 0 and re-enter the user's ladder on their next review)
 ```
 
-`TopicProgress` and `StudySession` are normalized, while dashboard values are aggregated by application queries or later materialized views. Calculated values must not be stored in multiple places without ownership and invalidation rules.
+Design notes:
+
+- No metric is stored. Goal progress, reports, streaks, accuracy, weak topics, and the dashboard are computed on request from sessions, tasks, topic progress, MCQ attempt answers, Written answers, Viva sessions, and revision logs. A goal's target is the only number a user enters.
+- The revision algorithm has no built-in intervals. `RevisionPolicy` reads the user's ladder and per-outcome step changes from `PlannerSettings`, and the defaults (`1, 3, 7, 14, 30, 60, 120`; Again → step 1, Hard +0, Good +1, Easy +2) apply only until the user saves their own. Current-affairs revision uses the same policy and writes to the same `RevisionLogs`.
+- Revision sources are polymorphic (type + ID). The service checks that questions are published and that notes and mistakes belong to the user. The title is snapshotted so the queue stays readable if a source changes.
+- Calendar days use Bangladesh Standard Time (UTC+6); date ranges are converted to UTC instant ranges for queries.
+- The existing MCQ `McqMistakes` table stays as the automatic per-question mistake tracker. `MistakeEntries` is the user's annotated notebook, and *Import MCQ mistakes* copies open MCQ mistakes into it with the correct options as reference.
 
 ### Current affairs
 
-```text
-CurrentAffair
-  - Id
-  - Title
-  - Summary
-  - Content
-  - EventDate
-  - PublicationDate
-  - CategoryId
-  - Status
+Implemented in `AddCurrentAffairsAndOfficialSources`:
 
-CurrentAffairSyllabusLink
-CurrentAffairQuestionLink
-CurrentAffairResourceLink
-GovernmentResource
-Publication
+```text
+CurrentAffairsEntries
+  - Id, Title, Summary, Content (longtext), EventDate (date), SourcePublishedOn (date)
+  - Category (19 values, stored as string), Status: Draft | Published | Archived
+  - SourceName, SourceUrl, SourceStatus: Unverified | Verified
+  - OfficialSourceId -> OfficialSources (set null), Notes, CreatedById -> AspNetUsers (restrict)
+  - CreatedAt, UpdatedAt, PublishedAt
+  - IX (Status, EventDate), (Status, Category, EventDate), Title
+
+CurrentAffairsEntryTags        PK (EntryId, Tag)
+CurrentAffairsEntrySubjects    PK (EntryId, SubjectId); Subject restrict
+CurrentAffairsEntryTopics      PK (EntryId, SyllabusItemId); SyllabusItem restrict
+CurrentAffairsEntryQuestions   PK (EntryId, QuestionType, QuestionId); QuestionType: Mcq | Written | Viva
+CurrentAffairsEntryReferences  Id, EntryId, Kind: Pdf | Image | WebPage, Title, Url
+CurrentAffairsEntryResources   PK (EntryId, ResourceId) -> LibraryResources (cascade)
+
+CurrentAffairsBookmarks        PK (UserId, EntryId), CreatedAt
+CurrentAffairsStudyNotes       Id, UserId, EntryId, Content; UX (UserId, EntryId)
+CurrentAffairsRevisions        PK (UserId, EntryId), ReviewCount, IntervalDays, NextReviewOn (date),
+                               LastReviewedAt, LastOutcome, AddedAt; IX (UserId, NextReviewOn)
+
+OfficialSources
+  - Id, Name, LocalizedName, Category (12 values), Url (unique), Description, ParentOrganization, IsInternational, UsageNotes
+  - VerificationStatus: Unverified | Verified | NeedsReview | Unreachable
+  - LastVerifiedOn (date), VerifiedById -> AspNetUsers (set null), VerificationNote
+  - Status: Draft | Published | Archived, SortOrder; IX (Status, Category, SortOrder)
+OfficialSourceTags             PK (SourceId, Tag)
 ```
+
+Design notes:
+
+- Question links are polymorphic: one row holds a type and an ID across the MCQ, Written and Viva tables. The service checks that each ID exists in the stated bank (a database foreign key cannot span three tables). When a question is deleted, the link stays but is hidden from learners.
+- Daily, weekly, monthly and yearly collections are date-range queries, not stored rows, so they can never drift from the entries. The archive groups event dates in application code to avoid provider-specific date-part translation.
+- Personal rows cascade with both their user and their entry. Deleting a shared library resource removes its attachment links.
+- Only the official directory is seeded (`OfficialSourceSeeder`, insert-if-missing by URL), from the verification run recorded in [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md). No current-affairs entries are seeded.
+
+### Site settings (implemented in `AddSiteSettings`)
+
+```text
+SiteSettings   single row (Id = 1): SiteName, Tagline, AnnouncementEnabled, AnnouncementText, AnnouncementTone,
+               AnnouncementStartsAt, AnnouncementEndsAt, SupportEmail, RegistrationOpen, FooterNotice, UpdatedById, UpdatedAt
+```
+
+A typed single-row table rather than key/value pairs, so every setting is validated and versioned with the schema. Defaults apply until an administrator saves. The tag administration in Phase 11 operates on the existing per-module tag tables; no new tag table was added.
+
+### Integrity and deletion policy (Phase 12 audit)
+
+- Every relationship has an explicit `OnDelete`. Owned children cascade, references to shared catalog data (subjects, syllabus items, users who own content) `Restrict`, and optional links `SetNull`.
+- Published content is archived (a status), not deleted; hard deletes are allowed only for drafts or archived items, and are audited. There is no global soft-delete flag.
+- History tables (MCQ attempts, Viva sessions, revision logs) snapshot titles and prompts so later edits never rewrite history.
+- All nine migrations are additive. See [AUDIT_REPORT.md](AUDIT_REPORT.md) for what has and has not been verified against MySQL.
 
 ## Key relationships
 

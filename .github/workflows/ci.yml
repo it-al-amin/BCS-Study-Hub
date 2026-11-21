@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore BCSStudyHub.sln
+      - run: dotnet build BCSStudyHub.sln -c Release --no-restore -warnaserror
+      - run: dotnet test BCSStudyHub.sln -c Release --no-build --verbosity normal
+      - name: Check migrations match the model
+        env:
+          ConnectionStrings__MySql: Server=localhost;Database=ci;User=ci;Password=ci
+        run: |
+          dotnet tool install --global dotnet-ef --version 10.0.12
+          dotnet ef migrations has-pending-model-changes --project src/BCSStudyHub.Infrastructure --startup-project src/BCSStudyHub.Api
+      - run: dotnet list BCSStudyHub.sln package --vulnerable --include-transitive
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm audit --omit=dev

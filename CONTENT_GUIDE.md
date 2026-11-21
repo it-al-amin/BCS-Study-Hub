@@ -181,9 +181,42 @@ For every item:
 
 Curate official sources manually. Do not blindly scrape or store third-party material without authorization.
 
+In the app (Admin → Current affairs):
+
+1. **Write the entry yourself.** Summarise in your own words; quote only short passages where unavoidable, and link to the original. The summary appears in lists and printed collections, so make it stand alone.
+2. **Dates.** *Event date* is when the event happened or the decision took effect; it drives the daily, weekly, monthly and yearly collections and the archive. *Source published on* is the date of the cited publication.
+3. **Category.** Choose one of: Bangladesh, International affairs, Economy, Government, Politics, Constitution, Diplomacy, International organizations, Science, Technology, Environment, Climate change, Awards, Sports, Important appointments, Government policies, National projects, Reports, Important events. Use tags for finer grouping (for example `budget`, `FY2026-27`).
+4. **Source.** Cite the primary source where possible (ministry, Bangladesh Bank, BBS, Parliament, BSS, UN agency), optionally linked to its directory entry. Tick *I opened the source URL and confirmed it supports this entry*; publishing is blocked until you do.
+5. **PDFs and images.** Prefer a reference link to the file on the publisher's site. To attach a file instead, upload it to the shared digital library first (where its rights basis is checked), then attach the library resource.
+6. **Links.** Map related subjects and syllabus topics, and search the MCQ, Written and Viva banks to attach related questions. Learners see only published questions.
+7. **Editor's note.** Use it for exam relevance or caveats, for example "figures are provisional".
+
+### Official resource directory
+
+Admin → Official sources. For every new or changed URL:
+
+- open it in a browser and confirm it is the official site: the organisation is named on the page, the domain is a government or organisation domain, and the HTTPS certificate is valid
+- record the outcome (*Verified*, *Needs review*, or *Unreachable*) with a note on what you checked
+- publish only verified entries. Verifications expire for publishing purposes after 365 days, and the public directory flags stale ones
+- add a usage note when a site has notable terms, for example statistics licensing
+
+Changing a URL withdraws the entry until it is re-verified. Seven seeded URLs failed the automated check and are waiting for manual verification; see [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md).
+
 ## Publication workflow
 
 Draft content is not visible in normal study flows. Published content is visible and can be linked to. Archived content remains available for audit and historical views but is excluded from default searches.
+
+## Admin console (Phase 11)
+
+Open **Administration** (requires the ContentManager or Administrator role). The dashboard shows drafts, published and archived counts, and items needing attention in each module you manage, such as unverified sources or directory URLs due for verification.
+
+- **Study notes** are library resources of kind *Note*. Write shared notes in Admin → Library with the Markdown editor (toolbar plus Preview tab), map them to topics, and publish. Learners find them from a syllabus topic's *Notes* link. Use **bold**, *italic*, `## headings`, `- lists`, `> quotes` and `[links](https://…)`; raw HTML is not rendered.
+- **Topics and subjects** are chosen with the hierarchical selector: syllabus version, then subject, then indented topics and subtopics.
+- **Publishing:** Admin → Publishing lists drafts per module. Select up to 100 and publish or archive them; each item gets the same checks as a single publish, and failures are listed with reasons.
+- **Tags:** Admin → Tags shows usage across modules. Rename to fix spelling; renaming to an existing tag merges the two. Removing a tag deletes it only from modules you manage.
+- **Categories:** Admin → Categories explains each category system. Viva categories and syllabus subjects are editable; the current-affairs, library, and directory categories are fixed by the project requirements.
+- **History:** editors with the audit permission see a *Change history* panel on library and current-affairs records, and the full log under Admin → Audit history.
+- **Site settings** (Administrator): site name, tagline, a scheduled announcement banner, support email, footer notice, and whether new registrations are allowed.
 
 ## Administrative workflow
 

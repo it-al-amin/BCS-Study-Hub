@@ -14,6 +14,13 @@ using BCSStudyHub.Application.Viva;
 using BCSStudyHub.Application.Library;
 using BCSStudyHub.Infrastructure.Library;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using BCSStudyHub.Application.CurrentAffairs;
+using BCSStudyHub.Infrastructure.CurrentAffairs;
+using BCSStudyHub.Application.Planner;
+using BCSStudyHub.Infrastructure.Planner;
+using BCSStudyHub.Application.Admin;
+using BCSStudyHub.Infrastructure.Admin;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -75,9 +82,23 @@ public static class DependencyInjection
             return new LocalFileStorage(Path.Combine(contentRoot, libraryStorage.RootPath));
         });
         services.AddScoped<ILibraryService, LibraryService>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddScoped<ICurrentAffairsService, CurrentAffairsService>();
+        services.AddScoped<IOfficialSourceService, OfficialSourceService>();
+        services.AddScoped<PlannerSettingsStore>();
+        services.AddScoped<StudyMetrics>();
+        services.AddScoped<PlannerService>();
+        services.AddScoped<IPlannerService>(provider => provider.GetRequiredService<PlannerService>());
+        services.AddScoped<IRevisionService, RevisionService>();
+        services.AddScoped<IProgressService, ProgressService>();
+        services.AddScoped<ISiteSettingsService, SiteSettingsService>();
+        services.AddScoped<IAuditQueryService, AuditQueryService>();
+        services.AddScoped<IAdminOverviewService, AdminOverviewService>();
+        services.AddScoped<ITagAdminService, TagAdminService>();
 
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<SyllabusDataSeeder>();
+        services.AddScoped<OfficialSourceSeeder>();
 
         return services;
     }

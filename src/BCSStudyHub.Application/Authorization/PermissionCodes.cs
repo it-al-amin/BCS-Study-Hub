@@ -12,6 +12,9 @@ public static class PermissionCodes
     public const string WrittenManage = "written.manage";
     public const string VivaManage = "viva.manage";
     public const string LibraryManage = "library.manage";
+    public const string CurrentAffairsManage = "currentaffairs.manage";
+    public const string SettingsManage = "settings.manage";
+    public const string AuditRead = "audit.read";
 
     public static IReadOnlyDictionary<string, string> Descriptions { get; } =
         new Dictionary<string, string>
@@ -26,5 +29,8 @@ public static class PermissionCodes
             [WrittenManage] = "Manage BCS Written questions and model answers",
             [VivaManage] = "Manage Viva categories and questions",
             [LibraryManage] = "Manage shared digital library resources, files, and chapters",
+            [CurrentAffairsManage] = "Manage current-affairs entries and the official resource directory",
+            [SettingsManage] = "Manage site settings such as the announcement banner and registration",
+            [AuditRead] = "View the administrative audit history",
         };
 }

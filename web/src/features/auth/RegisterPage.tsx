@@ -1,3 +1,4 @@
+import { useSiteSettings } from '../../app/useSiteSettings'
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../components/ui/Button'
@@ -6,6 +7,8 @@ import { Field, Input } from '../../components/ui/Form'
 import { useAuth } from '../../app/useAuth'
 
 export function RegisterPage() {
+  const site = useSiteSettings()
+  const closed = site?.registrationOpen === false
   const { register } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -33,6 +36,7 @@ export function RegisterPage() {
       <Card className="p-6 sm:p-8">
         <h1 className="text-xl font-semibold text-slate-950 dark:text-white">Create a candidate account</h1>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">An account lets you save topic completion to your profile.</p>
+        {closed && <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200" role="status">New registrations are currently closed.{site?.supportEmail ? ` Contact ${site.supportEmail} for access.` : ''}</p>}
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <Field label="Display name">
             <Input autoComplete="name" minLength={2} maxLength={120} required value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
@@ -44,7 +48,7 @@ export function RegisterPage() {
             <Input type="password" autoComplete="new-password" minLength={12} maxLength={128} required value={password} onChange={(event) => setPassword(event.target.value)} />
           </Field>
           {error && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{error}</p>}
-          <Button type="submit" disabled={submitting} className="w-full">{submitting ? 'Creating account…' : 'Create account'}</Button>
+          <Button type="submit" disabled={submitting || closed} className="w-full">{submitting ? 'Creating account…' : 'Create account'}</Button>
         </form>
         <p className="mt-5 text-sm text-slate-600 dark:text-slate-400">
           Already registered? <Link to="/login" className="font-medium text-emerald-700 hover:underline dark:text-emerald-400">Sign in</Link>

@@ -28,3 +28,6 @@ Thumbs.db
 
 # Uploaded library files (local storage provider)
 **/App_Data/
+
+# Deployment template (real .env stays ignored)
+!deploy/.env.example

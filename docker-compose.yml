@@ -1,0 +1,56 @@
+# Single-host deployment: MySQL + API + web (nginx). Copy deploy/.env.example to .env and fill in every value first.
+# Put a TLS-terminating proxy (or a managed load balancer) in front of the "web" service for HTTPS.
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/BCSStudyHub.Api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__MySql: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=${MYSQL_USER};Password=${MYSQL_PASSWORD};"
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Jwt__Issuer: ${JWT_ISSUER:-BCSStudyHub}
+      Jwt__Audience: ${JWT_AUDIENCE:-BCSStudyHub.Web}
+      Cors__AllowedOrigins__0: ${PUBLIC_ORIGIN}
+      AllowedHosts: ${ALLOWED_HOSTS:-*}
+      ReverseProxy__Enabled: "true"
+      Database__ApplyMigrationsOnStartup: ${APPLY_MIGRATIONS_ON_STARTUP:-false}
+      LibraryStorage__MaxFileSizeBytes: ${LIBRARY_MAX_FILE_BYTES:-52428800}
+      LibraryStorage__UserQuotaBytes: ${LIBRARY_USER_QUOTA_BYTES:-2147483648}
+    volumes:
+      - library-files:/var/lib/bcs/library-files
+    expose:
+      - "8080"
+
+  web:
+    build:
+      context: web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  mysql-data:
+  library-files:

@@ -140,12 +140,14 @@ Large files remain outside MySQL. Metadata and checksums are relational records.
 
 ### Current affairs
 
-- `CurrentAffair`: title, summary, content, event date, publication date, category, status
-- `CurrentAffairTopicLink`
-- `CurrentAffairQuestionLink`
-- `CurrentAffairResourceLink`
-- `GovernmentResource`: ministry/agency, title, URL, jurisdiction, status
-- `Publication`: title, publisher, publication date, resource, source URL
+Implemented in Phase 9:
+
+- `CurrentAffairsEntry`: title, summary, detailed content, event date, source publication date, one of 19 categories, draft/published/archived status, source name/URL, source-verified flag, optional directory organisation, editor's note
+- Links: tags, subjects, syllabus topics (any published stage), MCQ/Written/Viva questions (type + ID, validated across the three banks), publisher PDF/image/web references, and shared published library resources
+- Owner-scoped `CurrentAffairsBookmark`, `CurrentAffairsStudyNote` (one per entry), and `CurrentAffairsRevision` (spaced schedule)
+- `OfficialSource`: curated directory entry with category, URL, parent organisation, usage notes, and a manual verification record (status, date, verifier, note)
+
+Collections are computed rather than stored: a daily, ISO-weekly, monthly, or yearly digest is a date-range query over published entries, grouped by category. "Today" is Bangladesh Standard Time (UTC+6) via an injectable `TimeProvider`. Content is curated by editors. Nothing is scraped, and the server never fetches directory URLs. See [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md).
 
 ## 4. Relationship rules
 
@@ -361,22 +363,31 @@ Phase 8 status:
 - Storage abstraction and secure upload/download
 - Collections, bookmarks, reading progress, personal notes, and subject/topic/chapter associations
 
-### Phase 9 - Planner, revision, and dashboard
+### Phase 9 - Current affairs and official resource center (implemented)
 
-- Daily/weekly goals
-- Study sessions
-- Revision scheduling
-- Progress dashboard
-- Real performance trends
+- Curated content workflow with a verified-source publication gate
+- Official-source directory with manual, dated verification
+- Date/category/tag/topic filtering, digests, archive, and printable summaries
+- Resource, question, and topic associations; bookmarks, notes, and spaced revision
 
-### Phase 10 - Current affairs and government resources
+### Phase 10 - Planner, revision, and dashboard (implemented)
 
-- Curated content workflow
-- Official-source metadata
-- Date/category/tag filtering
-- Resource and topic associations
+- Daily/weekly/monthly goals, tasks, recurring schedules, timed and logged sessions, and a calendar
+- Revision scheduling driven entirely by a per-user `RevisionPolicy` (interval ladder + outcome step changes), shared with current affairs
+- Mistake notebook, weak-topic detection with user thresholds, and immutable revision history
+- Progress tracking, daily/weekly/monthly reports, and a dashboard computed from stored activity (`StudyMetrics`), with no hardcoded or cached figures
 
-### Phase 11 - Hardening and delivery
+### Phase 11 - Admin and content management (implemented)
+
+- A unified admin console that reuses each module's permission-protected services, plus tags, categories, site settings, and audit-history views
+
+### Phase 12 - Audit and deployment readiness (implemented)
+
+- Security headers and HSTS middleware, per-IP auth rate limiting, forwarded-headers support, and correct Problem Details content types
+- SQL-side analytics aggregation and route-level code splitting
+- Docker (API, web/nginx), Compose, CI, and backup/restore scripts; findings in AUDIT_REPORT.md
+
+### Phase 12 - Hardening and delivery (original plan)
 
 - Docker Compose
 - CI/CD

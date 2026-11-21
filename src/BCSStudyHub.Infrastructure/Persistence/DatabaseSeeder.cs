@@ -49,6 +49,7 @@ public sealed class DatabaseSeeder(
                 PermissionCodes.WrittenManage,
                 PermissionCodes.VivaManage,
                 PermissionCodes.LibraryManage,
+                PermissionCodes.CurrentAffairsManage,
             ],
             ["Administrator"] = permissions.Keys.ToArray(),
         };

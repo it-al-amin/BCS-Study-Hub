@@ -63,7 +63,7 @@ dotnet tool update --global dotnet-ef --version 10.0.12
 dotnet tool install --global dotnet-ef --version 10.0.12
 ```
 
-The `InitialIdentityAndAudit`, `AddVersionedSyllabus`, `AddMcqPracticeEngine`, `AddWrittenPreparation`, `AddVivaPreparation`, and `AddDigitalLibrary` migrations are included. For a first install, apply all included migrations with the `database update` command below. Do not regenerate existing migrations. To inspect the migration list:
+The `InitialIdentityAndAudit`, `AddVersionedSyllabus`, `AddMcqPracticeEngine`, `AddWrittenPreparation`, `AddVivaPreparation`, `AddDigitalLibrary`, `AddCurrentAffairsAndOfficialSources`, `AddStudyPlannerAndRevision`, and `AddSiteSettings` migrations are included. For a first install, apply all included migrations with the `database update` command below. Do not regenerate existing migrations. To inspect the migration list:
 
 ```powershell
 dotnet ef migrations list --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj
@@ -98,6 +98,14 @@ The Phase 8 digital library migration was generated with:
 ```powershell
 dotnet ef migrations add AddDigitalLibrary --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
 ```
+
+The Phase 9 current-affairs migration was generated with:
+
+```powershell
+dotnet ef migrations add AddCurrentAffairsAndOfficialSources --project src\BCSStudyHub.Infrastructure\BCSStudyHub.Infrastructure.csproj --startup-project src\BCSStudyHub.Api\BCSStudyHub.Api.csproj --output-dir Persistence\Migrations
+```
+
+On startup, `OfficialSourceSeeder` inserts any missing directory entries (matched by URL) and never overwrites editor changes. Only accounts with `currentaffairs.manage` (Administrator, ContentManager) can manage current affairs and the directory.
 
 For later model changes, add a new migration with a unique name and review its generated schema before applying it:
 
@@ -140,6 +148,10 @@ Vite proxies `/api` to the backend's Development HTTP URL (`http://localhost:521
 
 ## Configuration and security
 
+- Production configuration, Docker, backups, and first-admin setup are in [DEPLOYMENT.md](DEPLOYMENT.md).
+- `ReverseProxy:Enabled` (+ optional `ReverseProxy:KnownProxies`) trusts `X-Forwarded-*` from a single upstream proxy; enable it only when the proxy is the sole entry point.
+- `Database:ApplyMigrationsOnStartup` (default false) applies pending migrations at startup; prefer the reviewed idempotent script in production.
+- Permissions: `content.manage` (admin console), `settings.manage` (site settings), and `audit.read` (audit history) join the module permissions. ContentManager receives module and content permissions; Administrator receives all. Policies are generated from `PermissionCodes`, so adding a code automatically adds its policy.
 - Use .NET user-secrets locally and a managed secret store/environment variables in deployment.
 - Never commit database credentials or JWT signing keys.
 - Set `Cors:AllowedOrigins` explicitly for each deployed frontend.

@@ -23,6 +23,8 @@ import {
 import { SignInRequired } from './LibraryPage'
 import { categoryLabels, errorMessage, formatBytes, kindLabels, rightsLabels, sourceTypeLabels } from './libraryFormat'
 import { SyllabusMappingPicker, VisibilityBadge, type PickedRef } from './libraryUi'
+import { MarkdownEditor } from '../../components/content/MarkdownEditor'
+import { AuditHistory } from '../../components/content/AuditHistory'
 
 const fieldClass = 'mt-1 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950'
 const labelClass = 'block text-xs font-medium text-slate-600 dark:text-slate-300'
@@ -260,7 +262,7 @@ export function ResourceEditorPage({ mode }: { mode: LibraryMode }) {
               <label className={labelClass}>Language<input maxLength={60} className={fieldClass} value={form.language} onChange={(event) => set('language', event.target.value)} /></label>
             </fieldset>}
 
-            {form.kind === 'Note' && <label className={labelClass}>Note content<textarea required maxLength={100000} rows={12} className="mt-1 w-full rounded-lg border border-slate-200 bg-white p-3 text-sm leading-6 dark:border-slate-700 dark:bg-slate-950" value={form.noteContent} onChange={(event) => set('noteContent', event.target.value)} /></label>}
+            {form.kind === 'Note' && <MarkdownEditor label="Note content" required maxLength={100000} rows={14} value={form.noteContent} onChange={(value) => set('noteContent', value)} />}
 
             <fieldset className="grid gap-3 rounded-lg border border-slate-200 p-4 sm:grid-cols-2 dark:border-slate-700"><legend className="px-1 text-xs font-semibold">Source</legend>
               <label className={labelClass}>Source / publisher name<input maxLength={200} className={fieldClass} value={form.sourceName} onChange={(event) => set('sourceName', event.target.value)} placeholder="e.g. Ministry of Finance" /></label>
@@ -285,6 +287,7 @@ export function ResourceEditorPage({ mode }: { mode: LibraryMode }) {
         <div className="space-y-5">
           {detail && (detail.resource.kind === 'Book' || detail.resource.kind === 'File') && <FilesCard detail={detail} mode={mode} token={accessToken} storage={storage} onChanged={load} onError={setError} />}
           {detail?.resource.kind === 'Book' && <ChaptersCard detail={detail} mode={mode} token={accessToken} onChanged={load} onError={setError} />}
+          {detail && mode === 'admin' && <AuditHistory entityType="LibraryResource" entityId={detail.resource.id} />}
           {isNew && <Card className="p-5 text-sm text-slate-500">Save the resource first; then you can upload its file{form.kind === 'Book' ? ', a cover image, and chapters' : ''}.</Card>}
         </div>
       </div>

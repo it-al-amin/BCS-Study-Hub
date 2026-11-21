@@ -117,32 +117,46 @@ Build:
 
 Copyright, access control and file security were reviewed before implementation; see [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md). No library content is seeded. Malware scanning and a cloud storage provider are deferred.
 
-## Phase 9 - Planner and progress
+## Phase 9 - Current affairs and official resource center (implemented)
 
-Dependencies: Phases 4, 5, and 6
-
-Build:
-
-- daily/weekly goals, study sessions, topic progress, revision queue, mistake notebook, real database dashboard, and recent activity
-
-## Phase 10 - Current affairs and government resources
-
-Dependencies: Phases 4, 6, and 8
+Dependencies: Phases 4, 5, 6, 7, and 8
 
 Build:
 
-- current-affairs workflow
-- categories/tags/sources
-- publication dates
-- syllabus and question links
-- government resource directory
-- official external-link management
+- curated current-affairs workflow with 19 categories, tags, event/source publication dates, and a verified-source publication gate
+- daily, weekly (ISO), monthly, and yearly collections, archive, date/category/tag/topic filters, and search
+- syllabus subject/topic, MCQ/Written/Viva question, publisher-reference, and shared-library links
+- private bookmarks, study notes, spaced revision, and printable summaries
+- official resource directory with manual, dated URL verification (see [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md))
 
-## Phase 11 - Hardening
+Reordered ahead of the planner at the project owner's request. No scraping; no current-affairs content is seeded.
+
+## Phase 10 - Planner, revision, and progress tracking (implemented)
+
+Dependencies: Phases 4–9
+
+Build:
+
+- daily/weekly/monthly goals computed from recorded activity, tasks with priorities and planned/actual time, recurring schedules, a session timer and manual logs, and a calendar
+- topic completion and mastery, subject and stage progress, study time, streaks, and practice performance
+- a revision queue with user-defined intervals and outcome rules; imports from bookmarks, mistakes, weak topics, and notes; history; current affairs on the same policy
+- a mistake notebook with categories, correct-answer references, review dates, history, and topic mapping
+- daily, weekly, and monthly reports and a database-backed dashboard
+
+## Phase 11 - Admin and content management system (implemented)
+
+Dependencies: all content modules
+
+- one administration console over the existing module services (no duplicated CRUD): an overview dashboard, bulk publish/archive, cross-module tags, a categories overview, an audit history UI and per-record history panels, site settings with server-enforced registration control, a Markdown editor with safe preview, hierarchical topic selection, and a reusable resource picker
+- server-side authorization verified by reflection tests
+
+## Phase 12 - Audit, hardening, and deployment readiness (implemented; see AUDIT_REPORT.md)
 
 Dependencies: all selected modules
 
-Build:
+Done: security and performance fixes, HTTP-pipeline security tests, Docker/nginx/Compose, CI, backup/restore, and deployment documentation. Not done: running against MySQL, end-to-end tests, malware scanning, accessibility tooling.
+
+Original scope:
 
 - security review
 - rate limiting
@@ -153,6 +167,13 @@ Build:
 - automated and end-to-end tests
 - CI/CD
 - deployment configuration
+
+## Phase 13 - Integration verification and session hardening (next)
+
+- MySQL Testcontainers integration suite over all migrations and module APIs
+- Playwright smoke and axe accessibility tests
+- refresh-token sessions with revocation
+- malware scanning, object storage, and a distributed rate-limit store when scaling out
 
 ## Module dependency matrix
 
@@ -240,10 +261,23 @@ Admin ------------> every editable entity
 - [ ] Apply migrations and run MySQL/HTTP integration tests when a configured database is available
 - [ ] Add malware scanning and an object-storage provider when infrastructure is approved
 
+### Phase 9 - Current affairs
+
+- [x] Add entry, tag, subject/topic, question, reference, library-resource, bookmark, study-note, revision, and official-source entities
+- [x] Add digests (day/week/month/year), archive, filters, search, and the verified-source publication gate
+- [x] Add the official directory with manual verification records, URL-change invalidation, and a 365-day freshness rule
+- [x] Seed only directory URLs whose landing page identified the organisation; seed failed checks as drafts
+- [x] Add learner, printable digest, revision, directory, and admin UI
+- [x] Add rule, validation, and service-level tests; generate and inspect the migration
+- [ ] Apply migrations and run MySQL/HTTP integration tests when a configured database is available
+- [ ] Verify the seven draft directory URLs in a browser
+
 ### Future modules
 
 - [x] Implement Phase 7 Viva categories, questions, private practice state, ordered sessions, profile preparation, and admin
 - [x] Implement Phase 8 digital library
+- [x] Implement Phase 9 current affairs and official resource center
+- [x] Implement Phase 10 planner, revision, mistake notebook, tracking, reports, and dashboard
 - [ ] Add remaining modules in dependency order only
 - [ ] Review database impact before each migration
 - [ ] Keep module scope to one vertical slice

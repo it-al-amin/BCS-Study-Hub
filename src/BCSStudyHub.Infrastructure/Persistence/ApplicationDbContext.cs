@@ -77,6 +77,27 @@ public sealed class ApplicationDbContext(
     public DbSet<LibraryBookmark> LibraryBookmarks => Set<LibraryBookmark>();
     public DbSet<LibraryReadingProgress> LibraryReadingProgress => Set<LibraryReadingProgress>();
     public DbSet<LibraryPersonalNote> LibraryPersonalNotes => Set<LibraryPersonalNote>();
+    public DbSet<CurrentAffairsEntry> CurrentAffairsEntries => Set<CurrentAffairsEntry>();
+    public DbSet<CurrentAffairsEntryTag> CurrentAffairsEntryTags => Set<CurrentAffairsEntryTag>();
+    public DbSet<CurrentAffairsEntrySubject> CurrentAffairsEntrySubjects => Set<CurrentAffairsEntrySubject>();
+    public DbSet<CurrentAffairsEntryTopic> CurrentAffairsEntryTopics => Set<CurrentAffairsEntryTopic>();
+    public DbSet<CurrentAffairsEntryQuestion> CurrentAffairsEntryQuestions => Set<CurrentAffairsEntryQuestion>();
+    public DbSet<CurrentAffairsEntryReference> CurrentAffairsEntryReferences => Set<CurrentAffairsEntryReference>();
+    public DbSet<CurrentAffairsEntryResource> CurrentAffairsEntryResources => Set<CurrentAffairsEntryResource>();
+    public DbSet<CurrentAffairsBookmark> CurrentAffairsBookmarks => Set<CurrentAffairsBookmark>();
+    public DbSet<CurrentAffairsStudyNote> CurrentAffairsStudyNotes => Set<CurrentAffairsStudyNote>();
+    public DbSet<CurrentAffairsRevision> CurrentAffairsRevisions => Set<CurrentAffairsRevision>();
+    public DbSet<OfficialSource> OfficialSources => Set<OfficialSource>();
+    public DbSet<OfficialSourceTag> OfficialSourceTags => Set<OfficialSourceTag>();
+    public DbSet<StudyGoal> StudyGoals => Set<StudyGoal>();
+    public DbSet<StudySchedule> StudySchedules => Set<StudySchedule>();
+    public DbSet<StudyTask> StudyTasks => Set<StudyTask>();
+    public DbSet<StudySession> StudySessions => Set<StudySession>();
+    public DbSet<PlannerSettings> PlannerSettings => Set<PlannerSettings>();
+    public DbSet<RevisionItem> RevisionItems => Set<RevisionItem>();
+    public DbSet<RevisionLog> RevisionLogs => Set<RevisionLog>();
+    public DbSet<MistakeEntry> MistakeEntries => Set<MistakeEntry>();
+    public DbSet<SiteSettings> SiteSettings => Set<SiteSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -191,6 +212,41 @@ public sealed class ApplicationDbContext(
         builder.ApplyConfiguration(new LibraryBookmarkConfiguration());
         builder.ApplyConfiguration(new LibraryReadingProgressConfiguration());
         builder.ApplyConfiguration(new LibraryPersonalNoteConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryTagConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntrySubjectConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryTopicConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryQuestionConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryReferenceConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsEntryResourceConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsBookmarkConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsStudyNoteConfiguration());
+        builder.ApplyConfiguration(new CurrentAffairsRevisionConfiguration());
+        builder.ApplyConfiguration(new OfficialSourceConfiguration());
+        builder.ApplyConfiguration(new OfficialSourceTagConfiguration());
+        builder.ApplyConfiguration(new StudyGoalConfiguration());
+        builder.ApplyConfiguration(new StudyScheduleConfiguration());
+        builder.ApplyConfiguration(new StudyTaskConfiguration());
+        builder.ApplyConfiguration(new StudySessionConfiguration());
+        builder.ApplyConfiguration(new PlannerSettingsConfiguration());
+        builder.ApplyConfiguration(new RevisionItemConfiguration());
+        builder.ApplyConfiguration(new RevisionLogConfiguration());
+        builder.ApplyConfiguration(new MistakeEntryConfiguration());
+        builder.Entity<SiteSettings>(entity =>
+        {
+            entity.ToTable("SiteSettings");
+            entity.HasKey(settings => settings.Id);
+            entity.Property(settings => settings.Id).ValueGeneratedNever();
+            entity.Property(settings => settings.SiteName).HasMaxLength(80).IsRequired();
+            entity.Property(settings => settings.Tagline).HasMaxLength(200);
+            entity.Property(settings => settings.AnnouncementText).HasMaxLength(500);
+            entity.Property(settings => settings.AnnouncementTone).HasConversion<string>().HasMaxLength(16);
+            entity.Property(settings => settings.AnnouncementStartsAt).HasColumnType("datetime(6)");
+            entity.Property(settings => settings.AnnouncementEndsAt).HasColumnType("datetime(6)");
+            entity.Property(settings => settings.SupportEmail).HasMaxLength(254);
+            entity.Property(settings => settings.FooterNotice).HasMaxLength(500);
+            entity.Property(settings => settings.UpdatedAt).HasColumnType("datetime(6)");
+        });
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -361,6 +417,50 @@ public sealed class ApplicationDbContext(
             }
         }
 
+        foreach (var entry in ChangeTracker.Entries<CurrentAffairsEntry>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<OfficialSource>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        foreach (var entry in ChangeTracker.Entries<CurrentAffairsStudyNote>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+
+        StampCreatedUpdated(ChangeTracker.Entries<StudyGoal>(), goal => goal.CreatedAt = now, goal => goal.UpdatedAt = now);
+        StampCreatedUpdated(ChangeTracker.Entries<StudySchedule>(), schedule => schedule.CreatedAt = now, schedule => schedule.UpdatedAt = now);
+        StampCreatedUpdated(ChangeTracker.Entries<StudyTask>(), task => task.CreatedAt = now, task => task.UpdatedAt = now);
+        StampCreatedUpdated(ChangeTracker.Entries<MistakeEntry>(), mistake => mistake.CreatedAt = now, mistake => mistake.UpdatedAt = now);
+
         foreach (var entry in ChangeTracker.Entries<LibraryReadingProgress>())
         {
             if (entry.State is EntityState.Added or EntityState.Modified)
@@ -370,5 +470,25 @@ public sealed class ApplicationDbContext(
         }
 
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private static void StampCreatedUpdated<T>(
+        IEnumerable<Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T>> entries,
+        Action<T> setCreated,
+        Action<T> setUpdated)
+        where T : class
+    {
+        foreach (var entry in entries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                setCreated(entry.Entity);
+                setUpdated(entry.Entity);
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                setUpdated(entry.Entity);
+            }
+        }
     }
 }

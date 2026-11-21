@@ -1,3 +1,5 @@
+using BCSStudyHub.Api.Middleware;
+using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,6 +15,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
 {
     [AllowAnonymous]
     [HttpPost("register")]
+    [EnableRateLimiting(SecurityLimits.AuthPolicy)]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
@@ -37,6 +40,12 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
                 Title = "Registration conflict",
                 Detail = "An account with this email already exists.",
             }),
+            AuthFailure.RegistrationClosed => StatusCode(StatusCodes.Status403Forbidden, new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = "Registration closed",
+                Detail = "New registrations are currently closed by the site administrator.",
+            }),
             _ => BadRequest(new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
@@ -48,6 +57,7 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting(SecurityLimits.AuthPolicy)]
     [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login(

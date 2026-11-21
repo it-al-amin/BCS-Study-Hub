@@ -4,6 +4,9 @@ using BCSStudyHub.Application.Mcq;
 using BCSStudyHub.Application.Written;
 using BCSStudyHub.Application.Viva;
 using BCSStudyHub.Application.Library;
+using BCSStudyHub.Application.CurrentAffairs;
+using BCSStudyHub.Application.Planner;
+using BCSStudyHub.Application.Admin;
 
 namespace BCSStudyHub.Api.Middleware;
 
@@ -36,7 +39,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = exception.StatusCode,
                 Title = exception.Title,
                 Detail = exception.Message,
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (McqException exception)
         {
@@ -57,7 +60,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = exception.StatusCode,
                 Title = exception.Title,
                 Detail = exception.Message,
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (WrittenException exception)
         {
@@ -78,7 +81,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = exception.StatusCode,
                 Title = exception.Title,
                 Detail = exception.Message,
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (VivaException exception)
         {
@@ -99,7 +102,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = exception.StatusCode,
                 Title = exception.Title,
                 Detail = exception.Message,
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (LibraryException exception)
         {
@@ -120,7 +123,64 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = exception.StatusCode,
                 Title = exception.Title,
                 Detail = exception.Message,
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
+        }
+        catch (AdminException exception)
+        {
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
+            logger.LogInformation("Admin request rejected with {StatusCode}: {Detail}", exception.StatusCode, exception.Message);
+            context.Response.Clear();
+            context.Response.StatusCode = exception.StatusCode;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = exception.StatusCode,
+                Title = exception.Title,
+                Detail = exception.Message,
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
+        }
+        catch (PlannerException exception)
+        {
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
+            logger.LogInformation("Planner request rejected with {StatusCode}: {Detail}", exception.StatusCode, exception.Message);
+            context.Response.Clear();
+            context.Response.StatusCode = exception.StatusCode;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = exception.StatusCode,
+                Title = exception.Title,
+                Detail = exception.Message,
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
+        }
+        catch (CurrentAffairsException exception)
+        {
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
+
+            logger.LogInformation(
+                "Current-affairs request rejected with {StatusCode}: {Detail}",
+                exception.StatusCode,
+                exception.Message);
+            context.Response.Clear();
+            context.Response.StatusCode = exception.StatusCode;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                Status = exception.StatusCode,
+                Title = exception.Title,
+                Detail = exception.Message,
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (BadHttpRequestException exception) when (exception.StatusCode == StatusCodes.Status413PayloadTooLarge)
         {
@@ -137,7 +197,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Status = StatusCodes.Status413PayloadTooLarge,
                 Title = "Request too large",
                 Detail = "The uploaded file exceeds the maximum accepted size.",
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
         catch (Exception exception)
         {
@@ -162,7 +222,7 @@ public sealed class ExceptionHandlingMiddleware(
                 Title = "An unexpected error occurred.",
                 Detail = "The request could not be completed. Use the correlation ID when contacting support.",
                 Extensions = { ["traceId"] = context.TraceIdentifier },
-            });
+            }, (System.Text.Json.JsonSerializerOptions?)null, "application/problem+json");
         }
     }
 }

@@ -14,13 +14,20 @@ internal sealed class AuthService(
     RoleManager<ApplicationRole> roleManager,
     ApplicationDbContext dbContext,
     JwtTokenService tokenService,
-    IHttpContextAccessor httpContextAccessor)
+    IHttpContextAccessor httpContextAccessor,
+    BCSStudyHub.Application.Admin.ISiteSettingsService siteSettings)
     : IAuthService
 {
     public async Task<AuthOperationResult> RegisterAsync(
         RegisterRequest request,
         CancellationToken cancellationToken)
     {
+        // Enforced here, not only hidden in the UI, so a closed registration cannot be bypassed by calling the API.
+        if (!await siteSettings.IsRegistrationOpenAsync(cancellationToken))
+        {
+            return AuthOperationResult.Failed(AuthFailure.RegistrationClosed);
+        }
+
         var email = request.Email.Trim();
         if (await userManager.FindByEmailAsync(email) is not null)
         {

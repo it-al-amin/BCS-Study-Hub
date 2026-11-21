@@ -3,9 +3,11 @@ using System.Text;
 using BCSStudyHub.Api.Middleware;
 using System.Threading.RateLimiting;
 using BCSStudyHub.Api.Controllers;
+using BCSStudyHub.Api.Authorization;
 using BCSStudyHub.Application.Authorization;
 using BCSStudyHub.Application.Library;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using BCSStudyHub.Infrastructure;
 using BCSStudyHub.Infrastructure.Configuration;
@@ -46,41 +48,43 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
         };
     });
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(PermissionCodes.AdminAccess, policy =>
-        policy.RequireClaim("permission", PermissionCodes.AdminAccess));
-    options.AddPolicy(PermissionCodes.UsersManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.UsersManage));
-    options.AddPolicy(PermissionCodes.ContentManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.ContentManage));
-    options.AddPolicy(PermissionCodes.SyllabusManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.SyllabusManage));
-    options.AddPolicy(PermissionCodes.McqManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.McqManage));
-    options.AddPolicy(PermissionCodes.WrittenManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.WrittenManage));
-    options.AddPolicy(PermissionCodes.VivaManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.VivaManage));
-    options.AddPolicy(PermissionCodes.LibraryManage, policy =>
-        policy.RequireClaim("permission", PermissionCodes.LibraryManage));
-});
+builder.Services.AddAuthorization(PermissionPolicies.Register);
 
 // Upload endpoints accept multipart bodies up to the hard ceiling; the configured per-file limit is enforced by the service.
 builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = LibraryFileRules.AbsoluteMaxUploadBytes);
-builder.Services.AddRateLimiter(options =>
+builder.Services.AddRateLimiter(SecurityLimits.ConfigureRateLimiter);
+
+// Behind a reverse proxy (nginx, a load balancer) the client IP and scheme arrive in X-Forwarded-* headers.
+// Only enable this when such a proxy is the sole entry point, otherwise clients could spoof their IP.
+var behindProxy = builder.Configuration.GetValue<bool>("ReverseProxy:Enabled");
+if (behindProxy)
 {
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.AddPolicy(LibraryRateLimits.UploadPolicy, context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            _ => new FixedWindowRateLimiterOptions
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+        var proxies = builder.Configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [];
+        if (proxies.Length > 0)
+        {
+            foreach (var proxy in proxies)
             {
-                PermitLimit = 30,
-                Window = TimeSpan.FromMinutes(10),
-                QueueLimit = 0,
-            }));
+                options.KnownProxies.Add(System.Net.IPAddress.Parse(proxy));
+            }
+        }
+        else
+        {
+            // Container networks assign proxy IPs dynamically; trust the single upstream hop.
+            options.KnownIPNetworks.Clear();
+            options.KnownProxies.Clear();
+        }
+    });
+}
+
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = true;
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -99,16 +103,34 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
+    // Off by default: production normally applies the reviewed migration script before deploying. The container
+    // setup can opt in so a fresh database is created and upgraded on start. Migrations are additive.
+    if (app.Configuration.GetValue<bool>("Database:ApplyMigrationsOnStartup"))
+    {
+        await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+    }
+
     await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync();
     await scope.ServiceProvider.GetRequiredService<SyllabusDataSeeder>().SeedAsync();
+    await scope.ServiceProvider.GetRequiredService<OfficialSourceSeeder>().SeedAsync();
 }
 
+if (behindProxy)
+{
+    app.UseForwardedHeaders();
+}
+
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();

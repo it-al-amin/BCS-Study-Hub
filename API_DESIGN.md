@@ -343,46 +343,161 @@ See [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md) for the complete co
 
 ## Planner and progress endpoints
 
+All endpoints are `[Authorize]` and owner-scoped; another user's IDs return `404`.
+
 ```text
+GET    /api/v1/me/planner/settings
+PUT    /api/v1/me/planner/settings                       revision ladder, outcome step changes, retire step, daily limit, streak minimum, weak-topic thresholds
+GET    /api/v1/me/planner/goals?period=&date=
+POST   /api/v1/me/planner/goals
+PUT    /api/v1/me/planner/goals/{goalId}
+DELETE /api/v1/me/planner/goals/{goalId}
+GET    /api/v1/me/planner/tasks?from=&to=&status=&subjectId=&stage=
+POST   /api/v1/me/planner/tasks
+PUT    /api/v1/me/planner/tasks/{taskId}
+POST   /api/v1/me/planner/tasks/{taskId}/status          { status, actualMinutes? }
+DELETE /api/v1/me/planner/tasks/{taskId}
+GET    /api/v1/me/planner/schedules
+POST   /api/v1/me/planner/schedules
+PUT    /api/v1/me/planner/schedules/{scheduleId}
+DELETE /api/v1/me/planner/schedules/{scheduleId}
+POST   /api/v1/me/planner/schedules/{scheduleId}/generate  { from, to } (≤ 92 days; skips existing dates)
+GET    /api/v1/me/planner/sessions?from=&to=
+GET    /api/v1/me/planner/sessions/active               204 when no timer is running
+POST   /api/v1/me/planner/sessions/start
+POST   /api/v1/me/planner/sessions/{sessionId}/stop
+POST   /api/v1/me/planner/sessions                      log a past session
+PUT    /api/v1/me/planner/sessions/{sessionId}
+DELETE /api/v1/me/planner/sessions/{sessionId}
+GET    /api/v1/me/planner/calendar?from=&to=            ≤ 62 days: tasks, study minutes, revision due, streak days
+
+GET    /api/v1/me/revision/queue?dueOnly=&sourceType=&status=
+POST   /api/v1/me/revision/items                        { sourceType, sourceId?, title? (Custom), dueOn? }
+POST   /api/v1/me/revision/items/{itemId}/review        { outcome: Again | Hard | Good | Easy }
+POST   /api/v1/me/revision/items/{itemId}/suspend
+POST   /api/v1/me/revision/items/{itemId}/resume
+DELETE /api/v1/me/revision/items/{itemId}
+POST   /api/v1/me/revision/import                       { source: McqBookmarks | WrittenBookmarks | VivaBookmarks | McqMistakes | MistakeNotebook | WeakTopics | WrittenNotes | LibraryNotes | VivaNotes }
+GET    /api/v1/me/revision/history?from=&to=
+GET    /api/v1/me/revision/weak-topics
+
+GET    /api/v1/me/mistakes?search=&status=&category=&sourceType=&syllabusItemId=
+GET    /api/v1/me/mistakes/{mistakeId}                   includes revision history
+POST   /api/v1/me/mistakes
+PUT    /api/v1/me/mistakes/{mistakeId}
+POST   /api/v1/me/mistakes/{mistakeId}/resolve
+POST   /api/v1/me/mistakes/{mistakeId}/reopen
+DELETE /api/v1/me/mistakes/{mistakeId}
+POST   /api/v1/me/mistakes/import-mcq
+
 GET    /api/v1/me/dashboard
-GET    /api/v1/me/goals
-POST   /api/v1/me/goals
-PUT    /api/v1/me/goals/{id}
-GET    /api/v1/me/study-sessions
-POST   /api/v1/me/study-sessions
-PUT    /api/v1/me/study-sessions/{id}/complete
-GET    /api/v1/me/revision
-POST   /api/v1/me/revision/{id}/review
 GET    /api/v1/me/progress
-PUT    /api/v1/me/topics/{topicId}/progress
+GET    /api/v1/me/progress/topics?versionId=&subjectId=&status=all|completed|pending
+PUT    /api/v1/me/progress/topics/{syllabusItemId}/mastery   { mastery: 1–5 | null }
+GET    /api/v1/me/reports?period=daily|weekly|monthly&date=
 ```
 
-Dashboard metrics are calculated or cached from real database records.
+Rules:
+
+- Every metric (goal progress, study time, streak, accuracy, weak topics, revision statistics, dashboard) is computed from stored activity at request time; none is hardcoded or cached.
+- Revision intervals and outcome effects come only from the user's settings, validated as: 1–20 strictly increasing intervals of 1–3650 days, Hard ≤ Good ≤ Easy step changes, and Easy ≥ +1. Current-affairs revision uses the same settings and history.
+- A topic on a task, schedule, session or mistake must belong to a published syllabus version. It fills in its subject and stage, and must agree with any subject or stage that was also given.
+- Only one session timer can run at a time. Stopped sessions are capped at 1,440 minutes, and logged sessions cannot end in the future. A task's actual time is the sum of its linked sessions; a manual value is accepted only when no sessions are linked.
+- Weak topics: MCQ accuracy below the user's threshold with at least the user's minimum answers, or self-rated mastery of 1–2. Weak subjects apply the same thresholds per subject.
+- A streak day needs at least the user's minimum session minutes, or any submitted MCQ attempt, submitted Written answer, completed Viva session, or revision review. Days follow Bangladesh Standard Time.
 
 ## Current-affairs endpoints
 
+Public (anonymous; signed-in callers also receive their bookmark/note/revision flags):
+
 ```text
-GET    /api/v1/current-affairs
-GET    /api/v1/current-affairs/{id}
-POST   /api/v1/admin/current-affairs
-PUT    /api/v1/admin/current-affairs/{id}
-POST   /api/v1/admin/current-affairs/{id}/publish
-GET    /api/v1/government-resources
+GET    /api/v1/current-affairs/entries?search=&category=&from=&to=&tag=&subjectId=&syllabusItemId=&bookmarkedOnly=&sortBy=recent|oldest|updated&pageNumber=&pageSize=
+GET    /api/v1/current-affairs/entries/{entryId}
+GET    /api/v1/current-affairs/digest?period=Day|Week|Month|Year&date=yyyy-MM-dd&category=
+GET    /api/v1/current-affairs/archive
+GET    /api/v1/current-affairs/categories
+GET    /api/v1/current-affairs/tags
+GET    /api/v1/official-sources?search=&category=
+GET    /api/v1/official-sources/{sourceId}
 ```
+
+Personal (`[Authorize]`, owner-scoped):
+
+```text
+GET    /api/v1/me/current-affairs/bookmarks
+POST   /api/v1/me/current-affairs/entries/{entryId}/bookmark
+DELETE /api/v1/me/current-affairs/entries/{entryId}/bookmark
+GET    /api/v1/me/current-affairs/notes
+PUT    /api/v1/me/current-affairs/entries/{entryId}/note
+DELETE /api/v1/me/current-affairs/entries/{entryId}/note
+GET    /api/v1/me/current-affairs/revision?dueOnly=
+POST   /api/v1/me/current-affairs/entries/{entryId}/revision
+POST   /api/v1/me/current-affairs/entries/{entryId}/revision/review      { "outcome": "Again|Hard|Good|Easy" }
+DELETE /api/v1/me/current-affairs/entries/{entryId}/revision
+```
+
+Administration (`currentaffairs.manage`):
+
+```text
+GET    /api/v1/admin/current-affairs/entries?search=&status=&category=
+GET    /api/v1/admin/current-affairs/entries/{entryId}
+POST   /api/v1/admin/current-affairs/entries
+PUT    /api/v1/admin/current-affairs/entries/{entryId}
+POST   /api/v1/admin/current-affairs/entries/{entryId}/publish
+POST   /api/v1/admin/current-affairs/entries/{entryId}/archive
+DELETE /api/v1/admin/current-affairs/entries/{entryId}
+GET    /api/v1/admin/current-affairs/question-search?type=&search=
+GET    /api/v1/admin/current-affairs/resource-search?search=
+GET    /api/v1/admin/official-sources?search=&status=&verificationStatus=
+GET    /api/v1/admin/official-sources/{sourceId}
+POST   /api/v1/admin/official-sources
+PUT    /api/v1/admin/official-sources/{sourceId}
+POST   /api/v1/admin/official-sources/{sourceId}/verification             { "status": "Verified|NeedsReview|Unreachable", "note": "..." }
+POST   /api/v1/admin/official-sources/{sourceId}/publish
+POST   /api/v1/admin/official-sources/{sourceId}/archive
+DELETE /api/v1/admin/official-sources/{sourceId}
+```
+
+Rules:
+
+- Entries start as drafts. Publishing requires a named source with an http/https URL and `sourceStatus = Verified` (the editor confirmed the source supports the entry); editing a published entry keeps that requirement. Only drafts and archived entries can be deleted.
+- Digest weeks are ISO weeks (Monday–Sunday). Without `date`, the period containing today in Bangladesh Standard Time is returned, along with `previousAnchor` and `nextAnchor` for navigation. A digest returns at most 1,000 entries; `total` is the full count.
+- Related questions must exist in the bank of the stated type; learners see only published ones. Attached library resources must be shared and published; private uploads can never be attached. Topics must belong to published syllabus versions.
+- Directory entries publish only with a `Verified` record no older than 365 days. Changing the URL resets the record to `NeedsReview` and unpublishes the entry; recording `NeedsReview` or `Unreachable` also unpublishes it. Verification is a manual editor action; the API never fetches the URL.
+- The revision schedule: `Again` gives 1 day; `Hard`, `Good` and `Easy` start at 2, 3 and 7 days and then multiply the previous interval by 1.2, 2.5 and 3.5, capped at 180 days.
 
 ## Admin and security endpoints
 
+Each module's content administration lives in its own section above (syllabus, MCQ, Written, Viva, library, current affairs, official sources). The admin console (Phase 11) adds cross-cutting endpoints and does not duplicate them:
+
 ```text
-GET    /api/v1/admin/access
-GET    /api/v1/admin/users
-PUT    /api/v1/admin/users/{id}/status
-PUT    /api/v1/admin/users/{id}/roles
-GET    /api/v1/admin/roles
-PUT    /api/v1/admin/roles/{id}/permissions
-GET    /api/v1/admin/audit-logs
+GET    /api/v1/site-settings                          public: site name, active announcement, registration open, support email, footer
+GET    /api/v1/admin/settings                         settings.manage
+PUT    /api/v1/admin/settings                         settings.manage (audited)
+GET    /api/v1/admin/audit?entityType=&entityId=&actorId=&action=&from=&to=   audit.read
+GET    /api/v1/admin/audit/entity-types               audit.read
+GET    /api/v1/admin/overview                         content.manage: counts per module the caller manages; recent activity only with audit.read
+GET    /api/v1/admin/tags?module=&search=             content.manage, limited to the caller's modules
+POST   /api/v1/admin/tags/rename                      { module?, from, to }: renaming to an existing tag merges
+POST   /api/v1/admin/tags/delete                      { module?, tag }
+POST   /api/v1/admin/bulk/status                      { module, action: Publish|Archive, ids (1–100) }
+GET    /api/v1/admin/access                           admin.access smoke endpoint
 ```
 
-Only `/api/v1/admin/access` is implemented as a permission-policy smoke endpoint; the remaining endpoints are planned.
+Rules:
+
+- **Authorization is server-side.** One policy per permission code is generated from `PermissionCodes`, each requiring an authenticated user with that `permission` claim. A test asserts that every `api/v1/admin/*` controller declares a registered policy and every `api/v1/me/*` controller requires authentication.
+- Cross-module endpoints admit `content.manage` holders, then narrow to the modules the caller's own claims cover. Asking for another module returns 403.
+- Bulk publish and archive call each module's own service per item, so the same validation applies (verified sources, rights basis, published topics). Items are independent, and the response lists each failure. The change tracker is cleared between items so a failed item cannot leak into the next save.
+- `RegistrationOpen = false` makes `POST /auth/register` return 403 at the API, not only in the UI.
+- User and role administration endpoints are not implemented; roles are assigned by an operator (see DEPLOYMENT.md).
+
+## Cross-cutting HTTP behaviour (Phase 12)
+
+- Errors are RFC 7807 Problem Details with `Content-Type: application/problem+json`; 500 responses contain only a generic message and the correlation ID.
+- `POST /auth/login` and `/auth/register` are limited to 10 requests per minute per client IP (429), on top of Identity's per-account lockout. Uploads are limited to 30 per 10 minutes per user.
+- Every response carries `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, a Permissions-Policy, and a restrictive CSP; HSTS is sent outside Development.
+- Behind a proxy, set `ReverseProxy__Enabled` so client IPs and the scheme come from `X-Forwarded-*`.
 
 ## Security conventions
 

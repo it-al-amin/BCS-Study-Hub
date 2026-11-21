@@ -18,6 +18,8 @@ export const studyNavigation = [
   { label: 'Study Planner', href: '/planner', icon: 'CalendarDays' },
   { label: 'Revision', href: '/revision', icon: 'RotateCcw' },
   { label: 'Progress', href: '/progress', icon: 'ChartNoAxesCombined' },
+  { label: 'Study reports', href: '/reports', icon: 'ChartNoAxesCombined' },
+  { label: 'Mistake notebook', href: '/mistakes', icon: 'FileText' },
   { label: 'Written answers', href: '/written/answers', icon: 'FileText' },
   { label: 'Written bookmarks', href: '/written/bookmarks', icon: 'Bookmark' },
   { label: 'Written study notes', href: '/written/notes', icon: 'FileText' },
@@ -28,4 +30,6 @@ export const studyNavigation = [
   { label: 'Collections', href: '/library/collections', icon: 'BookOpen' },
   { label: 'Reading & bookmarks', href: '/library/reading', icon: 'Bookmark' },
   { label: 'Current Affairs', href: '/current-affairs', icon: 'Newspaper' },
+  { label: 'Current affairs revision', href: '/current-affairs/revision', icon: 'RotateCcw' },
+  { label: 'Official sources', href: '/official-sources', icon: 'Library' },
 ] as const

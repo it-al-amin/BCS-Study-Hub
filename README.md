@@ -21,6 +21,9 @@ BCS Study Hub is a database-driven preparation platform for Bangladesh Civil Ser
 - [BPSC Syllabus Sources](SYLLABUS_SOURCES.md) - official references, verified outline, and coverage limits
 - [Content Guide](CONTENT_GUIDE.md) - content and source-management rules
 - [Library Security Review](LIBRARY_SECURITY_REVIEW.md) - copyright, access-control, and file-security controls for the digital library
+- [Official Sources](OFFICIAL_SOURCES.md) - official resource directory verification register and current-affairs content policy
+- [Audit Report](AUDIT_REPORT.md) - Phase 12 architecture, security, performance, and test audit
+- [Deployment](DEPLOYMENT.md) - production configuration, Docker, backup, restore, and upgrades
 - [Project Status](PROJECT_STATUS.md) - current status and checklist
 
 ## Repository structure
@@ -61,6 +64,22 @@ The Viva module provides editable categories, a searchable and topic-filtered qu
 ## Digital library
 
 The library manages books (publisher, edition, year, ISBN, cover, chapters with page ranges), PDFs, images, Office documents, text notes, external links, government publications, reports, and newspaper references. Each item can be mapped to syllabus subjects, topics, and chapters and tagged. Learners keep a private library and can use bookmarks (resource, chapter, or page), reading progress, personal notes, and collections. Content managers curate a shared library with a draft/publish/archive workflow. Uploads are verified by content signature, size- and quota-limited, rate-limited, hashed, and stored outside MySQL behind a storage abstraction. Files are served only to authorised users. Shared files must have a redistributable rights basis; personal copies of commercial books stay private. No library content is seeded, and malware scanning is not yet integrated. See [LIBRARY_SECURITY_REVIEW.md](LIBRARY_SECURITY_REVIEW.md).
+
+## Current affairs and official resources
+
+Editors curate current-affairs entries across 19 BCS-relevant categories. Each entry has a summary and content, event and source dates, tags, a cited source, editor notes, publisher PDF/image/web references, shared library files, and links to syllabus subjects, topics, and MCQ/Written/Viva questions. Learners can browse by date range, category, tag or topic; open daily, ISO-weekly, monthly and yearly collections (printable) and the archive; and keep private bookmarks, study notes, and a spaced-revision schedule. An entry can only be published after the editor confirms its source. The official resource directory lists government, constitutional, legislative, statistical, central-bank and international-organisation websites; each URL is published only after a manual, dated verification. Nothing is scraped, and no current-affairs content is seeded. See [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md).
+
+## Planner, revision, and progress
+
+The planner covers daily, weekly and monthly goals; prioritised tasks with planned and actual time; recurring schedules; a study timer and manual session logs; and a month calendar, all filterable by subject and stage. Tracking shows completed and pending topics, self-rated mastery, subject and stage progress, study time, streaks, and MCQ, Written and Viva performance. The revision queue spaces out topics, questions, notes and mistakes on an interval ladder and outcome rules each user sets; current-affairs revision shares the same settings. The mistake notebook records the question, your answer, the correct reference, an explanation, a category, a review date and a topic. Daily, weekly and monthly reports and the dashboard are computed from your recorded activity, with no hardcoded figures.
+
+## Administration
+
+One admin console sits over every module's own management screens. It adds an overview dashboard, bulk publish and archive, cross-module tag management, an audit history with per-record panels, a categories overview, and site settings: announcement banner, and server-enforced registration control. Long-form content uses a Markdown editor with a safe preview, topics are picked through a version → subject → topic selector, and library resources are attached through a reusable picker. Every admin endpoint is protected by a permission policy on the server, which automated tests verify.
+
+## Audit and deployment
+
+[AUDIT_REPORT.md](AUDIT_REPORT.md) records the Phase 12 audit: what was verified, what was fixed, and what remains. Most importantly, the database migrations have not yet been applied to a real MySQL server. [DEPLOYMENT.md](DEPLOYMENT.md) covers Docker Compose deployment, configuration, first administrator setup, backup and restore, and upgrades.
 
 ## Running the frontend
 

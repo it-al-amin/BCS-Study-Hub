@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../../app/ThemeProvider'
 import { useAuth } from '../../app/useAuth'
+import { useSiteSettings } from '../../app/useSiteSettings'
 import { primaryNavigation, studyNavigation } from './navigation'
 import { Link } from 'react-router-dom'
 
@@ -35,6 +36,7 @@ function NavigationGroup({ items, onNavigate }: { items: readonly { label: strin
 }
 
 export function AppLayout() {
+  const site = useSiteSettings()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
@@ -47,7 +49,7 @@ export function AppLayout() {
       <NavLink to="/" className="flex h-16 items-center gap-3 px-5">
         <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-700 text-sm font-bold text-white">BCS</div>
         <div>
-          <div className="font-semibold text-slate-950 dark:text-white">Study Hub</div>
+          <div className="font-semibold text-slate-950 dark:text-white">{site?.siteName ?? 'BCS Study Hub'}</div>
           <div className="text-xs text-slate-500 dark:text-slate-400">Preparation workspace</div>
         </div>
       </NavLink>
@@ -56,9 +58,9 @@ export function AppLayout() {
         <div className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Study tools</div>
         <NavigationGroup items={studyNavigation} onNavigate={() => setMobileOpen(false)} />
       </div>
-      {(user?.permissions.includes('admin.access') || user?.permissions.includes('syllabus.manage') || user?.permissions.includes('mcq.manage') || user?.permissions.includes('written.manage')) && (
+      {(user?.permissions.includes('admin.access') || user?.permissions.includes('content.manage')) && (
         <div className="border-t border-slate-200 p-3 dark:border-slate-800">
-          <NavLink to={user.permissions.includes('admin.access') ? '/admin' : user.permissions.includes('written.manage') ? '/admin/written' : user.permissions.includes('mcq.manage') ? '/admin/mcq' : '/admin/syllabus'} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
+          <NavLink to="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
             <Settings className="h-4 w-4" /> Administration
           </NavLink>
         </div>
@@ -68,7 +70,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 print:hidden! border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:block">{sidebar}</aside>
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button aria-label="Close navigation" className="absolute inset-0 bg-slate-950/40" onClick={() => setMobileOpen(false)} />
@@ -78,8 +80,8 @@ export function AppLayout() {
           </aside>
         </div>
       )}
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:px-6">
+      <div className="lg:pl-64 print:pl-0">
+        <header className="sticky top-0 z-20 flex h-16 print:hidden items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 lg:px-6">
           <button aria-label="Open navigation" className="rounded-md p-2 text-slate-600 hover:bg-slate-100 lg:hidden dark:text-slate-300 dark:hover:bg-slate-800" onClick={() => setMobileOpen(true)}><Menu className="h-5 w-5" /></button>
           <div className="hidden items-center gap-1 text-sm text-slate-500 sm:flex">
             <NavLink to="/" className="hover:text-slate-900 dark:hover:text-white">Workspace</NavLink>
@@ -113,7 +115,9 @@ export function AppLayout() {
             </div>
           </div>
         )}
-        <main className="mx-auto max-w-[1440px] p-4 sm:p-6 lg:p-8"><Outlet /></main>
+        {site?.announcement && <div role="status" className={`border-b px-4 py-2 text-center text-sm print:hidden ${site.announcementTone === 'Critical' ? 'border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200' : site.announcementTone === 'Warning' ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200' : 'border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-200'}`}>{site.announcement}</div>}
+        <main className="mx-auto max-w-[1440px] p-4 sm:p-6 lg:p-8 print:max-w-none print:p-0"><Outlet /></main>
+        {(site?.footerNotice || site?.supportEmail) && <footer className="mx-auto max-w-[1440px] px-4 pb-6 text-xs text-slate-500 sm:px-6 lg:px-8 print:hidden">{site.footerNotice}{site.supportEmail && <> · Support: <a className="underline" href={`mailto:${site.supportEmail}`}>{site.supportEmail}</a></>}</footer>}
       </div>
     </div>
   )

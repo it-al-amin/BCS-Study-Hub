@@ -178,6 +178,7 @@ internal sealed class TopicProgressConfiguration : IEntityTypeConfiguration<Topi
         builder.HasKey(progress => progress.Id);
         builder.Property(progress => progress.UpdatedAt).HasColumnType("datetime(6)");
         builder.Property(progress => progress.CompletedAt).HasColumnType("datetime(6)");
+        builder.Property(progress => progress.MasteryUpdatedAt).HasColumnType("datetime(6)");
         builder.HasIndex(progress => new { progress.UserId, progress.SyllabusItemId }).IsUnique();
         builder.HasOne<ApplicationUser>()
             .WithMany()

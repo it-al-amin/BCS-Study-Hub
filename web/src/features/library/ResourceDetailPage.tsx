@@ -27,6 +27,7 @@ import {
   sourceTypeLabels,
 } from './libraryFormat'
 import { FileViewer, KindIcon, ProtectedImage, VisibilityBadge } from './libraryUi'
+import { Markdown } from '../../components/content/Markdown'
 
 const inputClass = 'mt-1 h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm dark:border-slate-700 dark:bg-slate-950'
 
@@ -160,7 +161,7 @@ function ResourceDetail({ resourceId }: { resourceId: string }) {
             </div>
             <FileViewer resourceId={resource.id} file={primaryFile} token={accessToken} page={viewerPage} />
           </Card>
-            : resource.kind === 'Note' ? <Card className="p-5"><CardHeader title="Study note" /><div className="mt-3 whitespace-pre-wrap text-sm leading-7">{detail.noteContent}</div></Card>
+            : resource.kind === 'Note' ? <Card className="p-5"><CardHeader title="Study note" /><Markdown source={detail.noteContent} className="mt-3" /></Card>
               : resource.kind === 'ExternalLink' ? <Card className="p-5"><p className="text-sm text-slate-600 dark:text-slate-300">This resource lives on an external website. Links open in a new tab; verify the publisher before relying on the content.</p>{resource.url && <a className="mt-3 inline-flex items-center gap-1 break-all text-sm text-emerald-700 hover:underline dark:text-emerald-400" href={resource.url} target="_blank" rel="noopener noreferrer nofollow"><ExternalLink className="h-4 w-4 shrink-0" />{resource.url}</a>}</Card>
                 : <Card><EmptyState title="No file attached" description={resource.kind === 'Book' ? 'This book is catalogued without a digital copy. Track your reading of the physical book below.' : 'No file has been uploaded yet.'} /></Card>}
 
