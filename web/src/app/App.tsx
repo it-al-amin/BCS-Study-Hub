@@ -52,6 +52,8 @@ const CurrentAffairsRevisionPage = lazy(() => import('../features/current-affair
 const OfficialSourcesPage = lazy(() => import('../features/current-affairs/OfficialSourcesPage').then((module) => ({ default: module.OfficialSourcesPage })))
 const AdminCurrentAffairsPage = lazy(() => import('../features/admin/AdminCurrentAffairsPage').then((module) => ({ default: module.AdminCurrentAffairsPage })))
 const AdminCurrentAffairsEditorPage = lazy(() => import('../features/admin/AdminCurrentAffairsEditorPage').then((module) => ({ default: module.AdminCurrentAffairsEditorPage })))
+const AdminContentSourcesPage = lazy(() => import('../features/admin/AdminContentSourcesPage').then((module) => ({ default: module.AdminContentSourcesPage })))
+const AdminDiscoveredContentPage = lazy(() => import('../features/admin/AdminDiscoveredContentPage').then((module) => ({ default: module.AdminDiscoveredContentPage })))
 const AdminOfficialSourcesPage = lazy(() => import('../features/admin/AdminOfficialSourcesPage').then((module) => ({ default: module.AdminOfficialSourcesPage })))
 const MistakesPage = lazy(() => import('../features/revision/MistakesPage').then((module) => ({ default: module.MistakesPage })))
 const ReportsPage = lazy(() => import('../features/progress/ReportsPage').then((module) => ({ default: module.ReportsPage })))
@@ -129,6 +131,8 @@ export function App() {
                 <Route path="admin/current-affairs" element={<RequirePermission permission="currentaffairs.manage"><AdminCurrentAffairsPage /></RequirePermission>} />
                 <Route path="admin/current-affairs/new" element={<RequirePermission permission="currentaffairs.manage"><AdminCurrentAffairsEditorPage /></RequirePermission>} />
                 <Route path="admin/current-affairs/:entryId/edit" element={<RequirePermission permission="currentaffairs.manage"><AdminCurrentAffairsEditorPage /></RequirePermission>} />
+                <Route path="admin/content-sources" element={<RequirePermission permission="sources.manage"><AdminContentSourcesPage /></RequirePermission>} />
+                <Route path="admin/discovered-content" element={<RequirePermission permission="sources.manage"><AdminDiscoveredContentPage /></RequirePermission>} />
                 <Route path="admin/official-sources" element={<RequirePermission permission="currentaffairs.manage"><AdminOfficialSourcesPage /></RequirePermission>} />
                 <Route path="admin/library/new" element={<RequirePermission permission="library.manage"><ResourceEditorPage mode="admin" /></RequirePermission>} />
                 <Route path="admin/library/:resourceId/edit" element={<RequirePermission permission="library.manage"><ResourceEditorPage mode="admin" /></RequirePermission>} />

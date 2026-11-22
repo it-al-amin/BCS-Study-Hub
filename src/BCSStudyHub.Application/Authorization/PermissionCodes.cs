@@ -15,6 +15,7 @@ public static class PermissionCodes
     public const string CurrentAffairsManage = "currentaffairs.manage";
     public const string SettingsManage = "settings.manage";
     public const string AuditRead = "audit.read";
+    public const string SourcesManage = "sources.manage";
 
     public static IReadOnlyDictionary<string, string> Descriptions { get; } =
         new Dictionary<string, string>
@@ -32,5 +33,6 @@ public static class PermissionCodes
             [CurrentAffairsManage] = "Manage current-affairs entries and the official resource directory",
             [SettingsManage] = "Manage site settings such as the announcement banner and registration",
             [AuditRead] = "View the administrative audit history",
+            [SourcesManage] = "Manage content sources, monitoring settings and scan history",
         };
 }

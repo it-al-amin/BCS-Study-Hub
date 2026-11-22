@@ -88,6 +88,10 @@ public sealed class ApplicationDbContext(
     public DbSet<CurrentAffairsStudyNote> CurrentAffairsStudyNotes => Set<CurrentAffairsStudyNote>();
     public DbSet<CurrentAffairsRevision> CurrentAffairsRevisions => Set<CurrentAffairsRevision>();
     public DbSet<OfficialSource> OfficialSources => Set<OfficialSource>();
+    public DbSet<ContentSource> ContentSources => Set<ContentSource>();
+    public DbSet<ContentSourceScan> ContentSourceScans => Set<ContentSourceScan>();
+    public DbSet<DiscoveredContent> DiscoveredContents => Set<DiscoveredContent>();
+    public DbSet<DiscoveredContentVersion> DiscoveredContentVersions => Set<DiscoveredContentVersion>();
     public DbSet<OfficialSourceTag> OfficialSourceTags => Set<OfficialSourceTag>();
     public DbSet<StudyGoal> StudyGoals => Set<StudyGoal>();
     public DbSet<StudySchedule> StudySchedules => Set<StudySchedule>();
@@ -184,6 +188,10 @@ public sealed class ApplicationDbContext(
             entity.HasIndex(log => new { log.ActorId, log.OccurredAt });
         });
 
+        builder.ApplyConfiguration(new ContentSourceConfiguration());
+        builder.ApplyConfiguration(new ContentSourceScanConfiguration());
+        builder.ApplyConfiguration(new DiscoveredContentConfiguration());
+        builder.ApplyConfiguration(new DiscoveredContentVersionConfiguration());
         builder.ApplyConfiguration(new ExamStageConfiguration());
         builder.ApplyConfiguration(new SyllabusVersionConfiguration());
         builder.ApplyConfiguration(new SubjectConfiguration());

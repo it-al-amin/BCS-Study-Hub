@@ -113,6 +113,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     await scope.ServiceProvider.GetRequiredService<DatabaseSeeder>().SeedAsync();
     await scope.ServiceProvider.GetRequiredService<SyllabusDataSeeder>().SeedAsync();
     await scope.ServiceProvider.GetRequiredService<OfficialSourceSeeder>().SeedAsync();
+    await scope.ServiceProvider.GetRequiredService<ContentSourceSeeder>().SeedAsync();
 }
 
 if (app.Environment.IsDevelopment() && args.Contains("--scrape-sources"))

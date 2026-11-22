@@ -8,6 +8,10 @@
 
 Phase 12 - System Audit and Deployment Readiness. Phases 1–11 are implemented and build-verified; Phase 12 fixed the security and performance issues it found and added deployment tooling. **Not yet verified:** migrations and API flows against a real MySQL server, end-to-end UI tests, and the Docker/CI files themselves, because no MySQL or Docker was available. See AUDIT_REPORT.md and DEPLOYMENT.md.
 
+## Knowledge collection platform (new track)
+
+Phase 1 done: content-source registry (`ContentSources`, `ContentSourceScans`), `sources.manage` permission, admin API and `/admin/content-sources` UI, SSRF-safe URL rules, 18 new tests. Phase 2 done: `SafeHttpFetcher` (DNS/IP checks on every connection, redirect and size limits, per-host rate limit), robots.txt service, RSS/Atom, sitemap and HTML adapters, a background scan worker, `DiscoveredContents` and `DiscoveredContentVersions` tables with SHA-256 change detection and versioning, a read-only discovered-content API and admin page, 27 new tests, and a live scan of a public RSS feed against MariaDB. No daily scheduler yet. See SOURCE_MONITORING_GUIDE.md, CRAWLING_POLICY.md and CONTENT_INGESTION_GUIDE.md. Next: Phase 3 (documents/PDF) and Phase 4 (scheduler).
+
 ## Completed
 
 - [x] Architecture, database design, API conventions, implementation roadmap, and setup documentation

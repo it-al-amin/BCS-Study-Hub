@@ -92,6 +92,13 @@ public static class DependencyInjection
         services.AddScoped<IRevisionService, RevisionService>();
         services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<ISiteSettingsService, SiteSettingsService>();
+        services.Configure<BCSStudyHub.Infrastructure.Crawling.CrawlerOptions>(configuration.GetSection(BCSStudyHub.Infrastructure.Crawling.CrawlerOptions.SectionName));
+        services.AddSingleton<BCSStudyHub.Infrastructure.Crawling.ISafeHttpFetcher, BCSStudyHub.Infrastructure.Crawling.SafeHttpFetcher>();
+        services.AddSingleton<BCSStudyHub.Infrastructure.Crawling.RobotsService>();
+        services.AddScoped<BCSStudyHub.Infrastructure.Crawling.ContentScanProcessor>();
+        services.AddHostedService<BCSStudyHub.Infrastructure.Crawling.ContentScanWorker>();
+        services.AddScoped<BCSStudyHub.Application.ContentSources.IDiscoveredContentService, BCSStudyHub.Infrastructure.ContentSources.DiscoveredContentService>();
+        services.AddScoped<BCSStudyHub.Application.ContentSources.IContentSourceService, BCSStudyHub.Infrastructure.ContentSources.ContentSourceService>();
         services.AddScoped<IAuditQueryService, AuditQueryService>();
         services.AddScoped<IAdminOverviewService, AdminOverviewService>();
         services.AddScoped<ITagAdminService, TagAdminService>();
@@ -99,6 +106,7 @@ public static class DependencyInjection
         services.AddScoped<DatabaseSeeder>();
         services.AddScoped<SyllabusDataSeeder>();
         services.AddScoped<OfficialSourceSeeder>();
+        services.AddScoped<ContentSourceSeeder>();
         services.AddScoped<OfficialSourceMetadataScraper>();
 
         return services;

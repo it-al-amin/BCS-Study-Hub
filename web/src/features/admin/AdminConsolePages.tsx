@@ -1,4 +1,4 @@
-import { AlertTriangle, Archive, ArrowRight, BookOpen, CircleHelp, FileClock, Landmark, Library, Mic2, Newspaper, PenTool, Save, Send, Settings, ShieldCheck, Tags, Users } from 'lucide-react'
+import { AlertTriangle, Archive, ArrowRight, BookOpen, CircleHelp, FileClock, Globe, Landmark, Library, Mic2, Newspaper, PenTool, Save, Send, Settings, ShieldCheck, Tags, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../app/useAuth'
@@ -36,6 +36,8 @@ const moduleCards = [
   { title: 'Viva', detail: 'Categories and questions', href: '/admin/viva', permission: 'viva.manage', icon: Mic2 },
   { title: 'Library', detail: 'Books, chapters, study notes, PDFs, images, files, and links', href: '/admin/library', permission: 'library.manage', icon: Library },
   { title: 'Current affairs', detail: 'Curated entries, references, and topic mapping', href: '/admin/current-affairs', permission: 'currentaffairs.manage', icon: Newspaper },
+  { title: 'Content sources', detail: 'Monitored websites, feeds, retention rules, and scan history', href: '/admin/content-sources', permission: 'sources.manage', icon: Globe },
+  { title: 'Discovered content', detail: 'Items found by scans, private until reviewed', href: '/admin/discovered-content', permission: 'sources.manage', icon: Newspaper },
   { title: 'Official sources', detail: 'Verified official website directory', href: '/admin/official-sources', permission: 'currentaffairs.manage', icon: Landmark },
   { title: 'Publishing', detail: 'Bulk publish or archive drafts across modules', href: '/admin/publishing', permission: 'content.manage', icon: Send },
   { title: 'Tags', detail: 'Rename, merge, and remove tags across modules', href: '/admin/tags', permission: 'content.manage', icon: Tags },

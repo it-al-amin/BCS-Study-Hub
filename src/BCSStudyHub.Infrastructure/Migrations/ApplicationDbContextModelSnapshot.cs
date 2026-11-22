@@ -55,6 +55,190 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.ToTable("AuditLogs", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.ContentSource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("BaseUrl")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)");
+
+                    b.Property<int>("ConsecutiveFailures")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ExcludePatterns")
+                        .HasMaxLength(2000)
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ExtractionMethod")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("FeedUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("Health")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("IncludePatterns")
+                        .HasMaxLength(2000)
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTimeOffset?>("LastScanAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTimeOffset?>("LastSuccessAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("LocalizedName")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Reliability")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("RequiresVerification")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("RetentionPolicy")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("RightsNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<int>("ScanIntervalMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SitemapUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaseUrl")
+                        .IsUnique();
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("Status", "IsEnabled", "Priority");
+
+                    b.ToTable("ContentSources", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.ContentSourceScan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DiscoveredCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<int>("FailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("RequestedById")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<int>("UnchangedCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UpdatedCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceId", "RequestedAt");
+
+                    b.HasIndex("Status", "RequestedAt");
+
+                    b.ToTable("ContentSourceScans", (string)null);
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.CurrentAffairsBookmark", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -95,7 +279,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<Guid>("CreatedById")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateOnly>("EventDate")
+                    b.Property<DateTime>("EventDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Notes")
@@ -113,7 +297,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
-                    b.Property<DateOnly?>("SourcePublishedOn")
+                    b.Property<DateTime?>("SourcePublishedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("SourceStatus")
@@ -291,7 +475,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("LastReviewedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("NextReviewOn")
+                    b.Property<DateTime>("NextReviewOn")
                         .HasColumnType("date");
 
                     b.Property<int>("ReviewCount")
@@ -341,6 +525,142 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.HasIndex("UserId", "UpdatedAt");
 
                     b.ToTable("CurrentAffairsStudyNotes", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.DiscoveredContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CanonicalUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<DateTimeOffset>("DiscoveredAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DuplicateOfId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ETag")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Excerpt")
+                        .HasMaxLength(600)
+                        .HasColumnType("varchar(600)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("LastModifiedHeader")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("varchar(24)");
+
+                    b.Property<string>("TextContent")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UrlHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentHash");
+
+                    b.HasIndex("SourceId", "UrlHash")
+                        .IsUnique();
+
+                    b.HasIndex("Status", "DiscoveredAt");
+
+                    b.ToTable("DiscoveredContents", (string)null);
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.DiscoveredContentVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CapturedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.Property<Guid>("ContentId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Excerpt")
+                        .HasMaxLength(600)
+                        .HasColumnType("varchar(600)");
+
+                    b.Property<Guid?>("ScanId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("TextContent")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("DiscoveredContentVersions", (string)null);
                 });
 
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.ExamStage", b =>
@@ -752,7 +1072,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateOnly?>("PublicationDate")
+                    b.Property<DateTime?>("PublicationDate")
                         .HasColumnType("date");
 
                     b.Property<DateTimeOffset?>("PublishedAt")
@@ -1320,7 +1640,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<DateOnly?>("PublishedOn")
+                    b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("Publisher")
@@ -1403,7 +1723,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("ResolvedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly?>("ReviewOn")
+                    b.Property<DateTime?>("ReviewOn")
                         .HasColumnType("date");
 
                     b.Property<string>("SourceType")
@@ -1461,7 +1781,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<bool>("IsInternational")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateOnly?>("LastVerifiedOn")
+                    b.Property<DateTime?>("LastVerifiedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("LocalizedName")
@@ -1649,7 +1969,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("DueOn")
+                    b.Property<DateTime>("DueOn")
                         .HasColumnType("date");
 
                     b.Property<int>("IntervalDays")
@@ -1859,7 +2179,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("varchar(16)");
 
-                    b.Property<DateOnly>("PeriodStart")
+                    b.Property<DateTime>("PeriodStart")
                         .HasColumnType("date");
 
                     b.Property<string>("Stage")
@@ -1904,7 +2224,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<int>("DaysOfWeek")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly?>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("date");
 
                     b.Property<bool>("IsActive")
@@ -1922,7 +2242,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("varchar(16)");
 
-                    b.Property<DateOnly>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("date");
 
                     b.Property<TimeOnly?>("StartTime")
@@ -2044,7 +2364,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<Guid?>("ScheduleId")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateOnly>("ScheduledDate")
+                    b.Property<DateTime>("ScheduledDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Stage")
@@ -2192,14 +2512,14 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<DateOnly?>("LastVerifiedOn")
+                    b.Property<DateTime?>("LastVerifiedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(2000)
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly?>("PublishedOn")
+                    b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("Publisher")
@@ -2282,10 +2602,10 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly?>("EffectiveFrom")
+                    b.Property<DateTime?>("EffectiveFrom")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly?>("EffectiveTo")
+                    b.Property<DateTime?>("EffectiveTo")
                         .HasColumnType("date");
 
                     b.Property<Guid>("ExamStageId")
@@ -2891,10 +3211,10 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("EndDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("date");
 
-                    b.Property<DateOnly>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("date");
 
                     b.Property<int>("TargetSubmissions")
@@ -3091,7 +3411,7 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<DateOnly?>("PublishedOn")
+                    b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("date");
 
                     b.Property<string>("Publisher")
@@ -3386,6 +3706,17 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.ContentSourceScan", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.ContentSource", "Source")
+                        .WithMany("Scans")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.CurrentAffairsBookmark", b =>
                 {
                     b.HasOne("BCSStudyHub.Domain.Entities.CurrentAffairsEntry", "Entry")
@@ -3541,6 +3872,28 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Entry");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.DiscoveredContent", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.ContentSource", "Source")
+                        .WithMany()
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.DiscoveredContentVersion", b =>
+                {
+                    b.HasOne("BCSStudyHub.Domain.Entities.DiscoveredContent", "Content")
+                        .WithMany("Versions")
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Content");
                 });
 
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.LibraryBookChapter", b =>
@@ -4590,6 +4943,11 @@ namespace BCSStudyHub.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.ContentSource", b =>
+                {
+                    b.Navigation("Scans");
+                });
+
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.CurrentAffairsEntry", b =>
                 {
                     b.Navigation("LibraryResources");
@@ -4603,6 +4961,11 @@ namespace BCSStudyHub.Infrastructure.Migrations
                     b.Navigation("Tags");
 
                     b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("BCSStudyHub.Domain.Entities.DiscoveredContent", b =>
+                {
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("BCSStudyHub.Domain.Entities.ExamStage", b =>
